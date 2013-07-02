@@ -94,20 +94,14 @@ class InterfaceGetCustomerPriceWorkflow
 
 	function run_trigger($action,$object,$user,$langs,$conf)
 	{
-		if ($action == 'LINEORDER_INSERT' || $action == 'LINEORDER_UPDATE' ||
-			$action == 'LINEPROPAL_INSERT' || $action == 'LINEPROPAL_UPDATE' ||
-			$action == 'LINEBILL_INSERT' || $action == 'LINEBILL_UPDATE') {
-			
+		// TODO : add message if price is from a document rather than the product price
+		if (($action == 'LINEPROPAL_INSERT' || $action == 'LINEORDER_INSERT' || $action == 'LINEBILL_INSERT')
+			&& !empty($object->fk_product)) {
 			dol_include_once('/comm/propal/class/propal.class.php');
 			dol_include_once('/commande/class/commande.class.php');
 			dol_include_once('/compta/facture/class/facture.class.php');
 			
-			if(!empty($object->fk_product)) {
-				$prix = $this->_getLastPriceForCustomer($object, 'invoice');
-				if(empty($prix)) $prix = $this->_getLastPriceForCustomer($object, 'order');
-				if(empty($prix)) $prix = $this->_getLastPriceForCustomer($object, 'proposal');
-				if(empty($prix)) $prix = 0;
-			}
+			$prix = $this->_getLastPriceForCustomer($object);
 			
 			if($prix > 0) {
 				$tabprice=calcul_price_total(
@@ -141,6 +135,8 @@ class InterfaceGetCustomerPriceWorkflow
 				
 				if($object->element == 'facturedet') $object->update($user, true);
 				else $object->update(true);
+				
+				return 1;
 			}
 			
 			dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->rowid);
@@ -149,49 +145,84 @@ class InterfaceGetCustomerPriceWorkflow
 		return 0;
 	}
 
-	function _getLastPriceForCustomer(&$objectLine, $type) {
-		// Subselect to get soc id
+	function _getLastPriceForCustomer(&$objectLine) {
+		// Subselect definition to get soc id
 		$subSelect = array();
 		$subSelect['facturedet'] = "SELECT f.fk_soc FROM ".MAIN_DB_PREFIX."facture f WHERE f.rowid = ".$objectLine->fk_facture;
 		$subSelect['commandedet'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."commande c WHERE c.rowid = ".$objectLine->fk_commande;
 		$subSelect['propaldet'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."propal p WHERE p.rowid = ".$objectLine->fk_propal;
 		
+		$filterDate = array(); // TODO : define in config date filter
+		$filterDate['thisyear'] = 'MAKEDATE(EXTRACT(YEAR FROM NOW()), 1)';
+		$filterDate['lastyear'] = 'TIMESTAMPADD(YEAR, -1, NOW())';
+		
+		// Select definition to get last price for customer
 		$sql = array();
-		$sql['invoice'] = "SELECT subprice
+		$sql['invoice'] = "SELECT f.fk_soc, fd.subprice, f.datef as date
 					FROM ".MAIN_DB_PREFIX."facturedet fd
 					LEFT JOIN ".MAIN_DB_PREFIX."facture f ON fd.fk_facture = f.rowid
 					WHERE fd.fk_product = ".$objectLine->fk_product."
 					AND f.fk_soc = (".$subSelect[$objectLine->element].")
 					AND f.fk_statut > 0
-					AND f.datef >= TIMESTAMPADD(YEAR, -1, NOW())
-					ORDER BY f.datef DESC
+					AND f.datef >= ".$filterDate['thisyear']."
+					ORDER BY date DESC
 					LIMIT 1";
-		$sql['order'] = "SELECT subprice
+		$sql['order'] = "SELECT c.fk_soc, cd.subprice, c.date_commande as date
 					FROM ".MAIN_DB_PREFIX."commandedet cd
 					LEFT JOIN ".MAIN_DB_PREFIX."commande c ON cd.fk_commande = c.rowid
 					WHERE cd.fk_product = ".$objectLine->fk_product."
 					AND c.fk_soc = (".$subSelect[$objectLine->element].")
 					AND c.fk_statut > 0
-					AND c.date_commande >= TIMESTAMPADD(YEAR, -1, NOW())
-					ORDER BY c.date_commande DESC
+					AND c.date_commande >= ".$filterDate['thisyear']."
+					ORDER BY date DESC
 					LIMIT 1";
-		$sql['proposal'] = "SELECT subprice
+		$sql['proposal'] = "SELECT p.fk_soc, pd.subprice, p.datep as date
 					FROM ".MAIN_DB_PREFIX."propaldet pd
 					LEFT JOIN ".MAIN_DB_PREFIX."propal p ON pd.fk_propal = p.rowid
 					WHERE pd.fk_product = ".$objectLine->fk_product."
 					AND p.fk_soc = (".$subSelect[$objectLine->element].")
 					AND p.fk_statut > 0
-					AND p.datep >= TIMESTAMPADD(YEAR, -1, NOW())
-					ORDER BY p.datep DESC
+					AND p.datep >= ".$filterDate['thisyear']."
+					ORDER BY date DESC
 					LIMIT 1";
 		
-		$resql = $this->db->query($sql[$type]);
+		$sqlToUse = array();
+		foreach($sql as $type => $query) {
+			if(in_array($type, array('invoice', 'order', 'proposal'))) { // TODO : define in config where to search
+				$sqlToUse[] = '('.$query.')';
+			}
+		}
+		
+		$sqlFinal = implode(' UNION ', $sqlToUse);
+		$sqlFinal.= ' ORDER BY date DESC LIMIT 1';
+		
+		$prix = 0;
+		$resql = $this->db->query($sqlFinal);
 		if($resql) {
 			$obj = $this->db->fetch_object($resql);
 			$prix = $obj->subprice;
+			$fk_soc = $obj->fk_soc;
+		}
+		echo $sqlFinal;
+		if(!empty($prix)) {
+			// Load product
+			$product = new Product($this->db);
+			$product->fetch($objectLine->fk_product);
+			
+			// Load customer
+			$customer = new Societe($this->db);
+			$customer->fetch($fk_soc);
+			
+			// Check if last price is not less than min price
+			$price_min = $product->price_min;
+			if (!empty($conf->global->PRODUIT_MULTIPRICES) && !empty($customer->price_level))
+				$price_min = $product->multiprices_min[$customer->price_level];
+				
+			if (!empty($price_min) && (price2num($prix)*(1-price2num($objectLine->remise_percent)/100) < price2num($price_min))) return -2;
+			
 			return $prix;
 		}
 		
-		return false;
+		return -1;
 	}
 }
