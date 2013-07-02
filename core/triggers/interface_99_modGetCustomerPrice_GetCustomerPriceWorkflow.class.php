@@ -148,9 +148,9 @@ class InterfaceGetCustomerPriceWorkflow
 	function _getLastPriceForCustomer(&$objectLine) {
 		// Subselect definition to get soc id
 		$subSelect = array();
-		$subSelect['facturedet'] = "SELECT f.fk_soc FROM ".MAIN_DB_PREFIX."facture f WHERE f.rowid = ".$objectLine->fk_facture;
-		$subSelect['commandedet'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."commande c WHERE c.rowid = ".$objectLine->fk_commande;
-		$subSelect['propaldet'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."propal p WHERE p.rowid = ".$objectLine->fk_propal;
+		$subSelect['FactureLigne'] = "SELECT f.fk_soc FROM ".MAIN_DB_PREFIX."facture f WHERE f.rowid = ".$objectLine->fk_facture;
+		$subSelect['OrderLines'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."commande c WHERE c.rowid = ".$objectLine->fk_commande;
+		$subSelect['PropaleLigne'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."propal p WHERE p.rowid = ".$objectLine->fk_propal;
 		
 		$filterDate = array(); // TODO : define in config date filter
 		$filterDate['thisyear'] = 'MAKEDATE(EXTRACT(YEAR FROM NOW()), 1)';
@@ -162,7 +162,7 @@ class InterfaceGetCustomerPriceWorkflow
 					FROM ".MAIN_DB_PREFIX."facturedet fd
 					LEFT JOIN ".MAIN_DB_PREFIX."facture f ON fd.fk_facture = f.rowid
 					WHERE fd.fk_product = ".$objectLine->fk_product."
-					AND f.fk_soc = (".$subSelect[$objectLine->element].")
+					AND f.fk_soc = (".$subSelect[get_class($objectLine)].")
 					AND f.fk_statut > 0
 					AND f.datef >= ".$filterDate['thisyear']."
 					ORDER BY date DESC
@@ -171,7 +171,7 @@ class InterfaceGetCustomerPriceWorkflow
 					FROM ".MAIN_DB_PREFIX."commandedet cd
 					LEFT JOIN ".MAIN_DB_PREFIX."commande c ON cd.fk_commande = c.rowid
 					WHERE cd.fk_product = ".$objectLine->fk_product."
-					AND c.fk_soc = (".$subSelect[$objectLine->element].")
+					AND c.fk_soc = (".$subSelect[get_class($objectLine)].")
 					AND c.fk_statut > 0
 					AND c.date_commande >= ".$filterDate['thisyear']."
 					ORDER BY date DESC
@@ -180,7 +180,7 @@ class InterfaceGetCustomerPriceWorkflow
 					FROM ".MAIN_DB_PREFIX."propaldet pd
 					LEFT JOIN ".MAIN_DB_PREFIX."propal p ON pd.fk_propal = p.rowid
 					WHERE pd.fk_product = ".$objectLine->fk_product."
-					AND p.fk_soc = (".$subSelect[$objectLine->element].")
+					AND p.fk_soc = (".$subSelect[get_class($objectLine)].")
 					AND p.fk_statut > 0
 					AND p.datep >= ".$filterDate['thisyear']."
 					ORDER BY date DESC
@@ -195,6 +195,7 @@ class InterfaceGetCustomerPriceWorkflow
 		
 		$sqlFinal = implode(' UNION ', $sqlToUse);
 		$sqlFinal.= ' ORDER BY date DESC LIMIT 1';
+		//echo $sqlFinal;
 		
 		$prix = 0;
 		$resql = $this->db->query($sqlFinal);
@@ -203,7 +204,7 @@ class InterfaceGetCustomerPriceWorkflow
 			$prix = $obj->subprice;
 			$fk_soc = $obj->fk_soc;
 		}
-		echo $sqlFinal;
+		
 		if(!empty($prix)) {
 			// Load product
 			$product = new Product($this->db);
