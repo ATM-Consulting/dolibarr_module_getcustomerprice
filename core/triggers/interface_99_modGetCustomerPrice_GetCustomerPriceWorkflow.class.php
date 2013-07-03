@@ -149,7 +149,7 @@ class InterfaceGetCustomerPriceWorkflow
 		// Subselect definition to get soc id
 		$subSelect = array();
 		$subSelect['FactureLigne'] = "SELECT f.fk_soc FROM ".MAIN_DB_PREFIX."facture f WHERE f.rowid = ".$objectLine->fk_facture;
-		$subSelect['OrderLines'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."commande c WHERE c.rowid = ".$objectLine->fk_commande;
+		$subSelect['OrderLine'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."commande c WHERE c.rowid = ".$objectLine->fk_commande;
 		$subSelect['PropaleLigne'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."propal p WHERE p.rowid = ".$objectLine->fk_propal;
 		
 		$filterDate = array(); // TODO : define in config date filter
