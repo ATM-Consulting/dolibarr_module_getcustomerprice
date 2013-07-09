@@ -147,15 +147,26 @@ class InterfaceGetCustomerPriceWorkflow
 	}
 
 	function _getLastPriceForCustomer(&$objectLine) {
+		global $conf;
+		
+		// Define filter for where to search
+		$searchIn = array();
+		if($conf->global->GETCUSTOMERPRICE_SEARCH_IN_PROPAL) $searchIn[] = 'propal';
+		if($conf->global->GETCUSTOMERPRICE_SEARCH_IN_ORDER) $searchIn[] = 'order';
+		if($conf->global->GETCUSTOMERPRICE_SEARCH_IN_INVOICE) $searchIn[] = 'invoice';
+		if(empty($searchIn)) return -3;
+		
+		// Define filter on date
+		$filterDate = array();
+		$filterDate['thisyear'] = 'MAKEDATE(EXTRACT(YEAR FROM NOW()), 1)';
+		$filterDate['lastyear'] = 'TIMESTAMPADD(YEAR, -1, NOW())';
+		$whDate = !empty($filterDate[$conf->global->GETCUSTOMERPRICE_DATEFROM]) ? $filterDate[$conf->global->GETCUSTOMERPRICE_DATEFROM] : $filterDate['thisyear'];
+		
 		// Subselect definition to get soc id
 		$subSelect = array();
 		$subSelect['FactureLigne'] = "SELECT f.fk_soc FROM ".MAIN_DB_PREFIX."facture f WHERE f.rowid = ".$objectLine->fk_facture;
 		$subSelect['OrderLine'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."commande c WHERE c.rowid = ".$objectLine->fk_commande;
 		$subSelect['PropaleLigne'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."propal p WHERE p.rowid = ".$objectLine->fk_propal;
-		
-		$filterDate = array(); // TODO : define in config date filter
-		$filterDate['thisyear'] = 'MAKEDATE(EXTRACT(YEAR FROM NOW()), 1)';
-		$filterDate['lastyear'] = 'TIMESTAMPADD(YEAR, -1, NOW())';
 		
 		// Select definition to get last price for customer
 		$sql = array();
@@ -165,7 +176,7 @@ class InterfaceGetCustomerPriceWorkflow
 					WHERE fd.fk_product = ".$objectLine->fk_product."
 					AND f.fk_soc = (".$subSelect[get_class($objectLine)].")
 					AND f.fk_statut > 0
-					AND f.datef >= ".$filterDate['thisyear']."
+					AND f.datef >= ".$whDate."
 					ORDER BY date DESC
 					LIMIT 1";
 		$sql['order'] = "SELECT c.fk_soc, cd.subprice, c.date_commande as date
@@ -174,7 +185,7 @@ class InterfaceGetCustomerPriceWorkflow
 					WHERE cd.fk_product = ".$objectLine->fk_product."
 					AND c.fk_soc = (".$subSelect[get_class($objectLine)].")
 					AND c.fk_statut > 0
-					AND c.date_commande >= ".$filterDate['thisyear']."
+					AND c.date_commande >= ".$whDate."
 					ORDER BY date DESC
 					LIMIT 1";
 		$sql['proposal'] = "SELECT p.fk_soc, pd.subprice, p.datep as date
@@ -183,20 +194,20 @@ class InterfaceGetCustomerPriceWorkflow
 					WHERE pd.fk_product = ".$objectLine->fk_product."
 					AND p.fk_soc = (".$subSelect[get_class($objectLine)].")
 					AND p.fk_statut > 0
-					AND p.datep >= ".$filterDate['thisyear']."
+					AND p.datep >= ".$whDate."
 					ORDER BY date DESC
 					LIMIT 1";
 		
 		$sqlToUse = array();
 		foreach($sql as $type => $query) {
-			if(in_array($type, array('invoice', 'order', 'proposal'))) { // TODO : define in config where to search
+			if(in_array($type, $searchIn)) {
 				$sqlToUse[] = '('.$query.')';
 			}
 		}
 		
 		$sqlFinal = implode(' UNION ', $sqlToUse);
 		$sqlFinal.= ' ORDER BY date DESC LIMIT 1';
-		//echo $sqlFinal;
+		echo $sqlFinal;
 		
 		$prix = 0;
 		$resql = $this->db->query($sqlFinal);
