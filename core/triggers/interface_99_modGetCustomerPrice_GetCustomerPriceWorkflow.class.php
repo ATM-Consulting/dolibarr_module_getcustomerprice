@@ -1,6 +1,5 @@
 <?php
-/* Copyright (C) 2005-2011 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2005-2011 Regis Houssin        <regis.houssin@capnetworks.com>
+/* Copyright (C) 2013 ATM Consulting <support@atm-consulting.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,16 +16,16 @@
  */
 
 /**
- *  \file       htdocs/core/triggers/interface_90_all_Demo.class.php
- *  \ingroup    core
- *  \brief      Fichier de demo de personalisation des actions du workflow
- *  \remarks    Son propre fichier d'actions peut etre cree par recopie de celui-ci:
- *              - Le nom du fichier doit etre: interface_99_modMymodule_Mytrigger.class.php
- *				                           ou: interface_99_all_Mytrigger.class.php
- *              - Le fichier doit rester stocke dans core/triggers
- *              - Le nom de la classe doit etre InterfaceMytrigger
- *              - Le nom de la methode constructeur doit etre InterfaceMytrigger
- *              - Le nom de la propriete name doit etre Mytrigger
+ *  \file	   htdocs/core/triggers/interface_90_all_Demo.class.php
+ *  \ingroup	core
+ *  \brief	  Fichier de demo de personalisation des actions du workflow
+ *  \remarks	Son propre fichier d'actions peut etre cree par recopie de celui-ci:
+ *			  - Le nom du fichier doit etre: interface_99_modMymodule_Mytrigger.class.php
+ *										   ou: interface_99_all_Mytrigger.class.php
+ *			  - Le fichier doit rester stocke dans core/triggers
+ *			  - Le nom de la classe doit etre InterfaceMytrigger
+ *			  - Le nom de la methode constructeur doit etre InterfaceMytrigger
+ *			  - Le nom de la propriete name doit etre Mytrigger
  */
 
 
@@ -36,61 +35,61 @@
  
 class InterfaceGetCustomerPriceWorkflow
 {
-    var $db;
-    
-    /**
-     *   Constructor
-     *
-     *   @param		DoliDB		$db      Database handler
-     */
-    function __construct($db)
-    {
-        $this->db = $db;
-    
-        $this->name = preg_replace('/^Interface/i','',get_class($this));
-        $this->family = "ATM";
-        $this->description = "Trigger du module de récupération de prix client";
-        $this->version = 'dolibarr';            // 'development', 'experimental', 'dolibarr' or version
-        $this->picto = 'technic';
-    }
-    
-    
-    /**
-     *   Return name of trigger file
-     *
-     *   @return     string      Name of trigger file
-     */
-    function getName()
-    {
-        return $this->name;
-    }
-    
-    /**
-     *   Return description of trigger file
-     *
-     *   @return     string      Description of trigger file
-     */
-    function getDesc()
-    {
-        return $this->description;
-    }
+	var $db;
+	
+	/**
+	 *   Constructor
+	 *
+	 *   @param		DoliDB		$db	  Database handler
+	 */
+	function __construct($db)
+	{
+		$this->db = $db;
+	
+		$this->name = preg_replace('/^Interface/i','',get_class($this));
+		$this->family = "ATM";
+		$this->description = "Trigger du module de récupération de prix client";
+		$this->version = 'dolibarr';			// 'development', 'experimental', 'dolibarr' or version
+		$this->picto = 'technic';
+	}
+	
+	
+	/**
+	 *   Return name of trigger file
+	 *
+	 *   @return	 string	  Name of trigger file
+	 */
+	function getName()
+	{
+		return $this->name;
+	}
+	
+	/**
+	 *   Return description of trigger file
+	 *
+	 *   @return	 string	  Description of trigger file
+	 */
+	function getDesc()
+	{
+		return $this->description;
+	}
 
-    /**
-     *   Return version of trigger file
-     *
-     *   @return     string      Version of trigger file
-     */
-    function getVersion()
-    {
-        global $langs;
-        $langs->load("admin");
+	/**
+	 *   Return version of trigger file
+	 *
+	 *   @return	 string	  Version of trigger file
+	 */
+	function getVersion()
+	{
+		global $langs;
+		$langs->load("admin");
 
-        if ($this->version == 'development') return $langs->trans("Development");
-        elseif ($this->version == 'experimental') return $langs->trans("Experimental");
-        elseif ($this->version == 'dolibarr') return DOL_VERSION;
-        elseif ($this->version) return $this->version;
-        else return $langs->trans("Unknown");
-    }
+		if ($this->version == 'development') return $langs->trans("Development");
+		elseif ($this->version == 'experimental') return $langs->trans("Experimental");
+		elseif ($this->version == 'dolibarr') return DOL_VERSION;
+		elseif ($this->version) return $this->version;
+		else return $langs->trans("Unknown");
+	}
 
 	function run_trigger($action,$object,$user,$langs,$conf)
 	{
@@ -151,7 +150,7 @@ class InterfaceGetCustomerPriceWorkflow
 		
 		// Define filter for where to search
 		$searchIn = array();
-		if($conf->global->GETCUSTOMERPRICE_SEARCH_IN_PROPAL) $searchIn[] = 'propal';
+		if($conf->global->GETCUSTOMERPRICE_SEARCH_IN_PROPOSAL) $searchIn[] = 'proposal';
 		if($conf->global->GETCUSTOMERPRICE_SEARCH_IN_ORDER) $searchIn[] = 'order';
 		if($conf->global->GETCUSTOMERPRICE_SEARCH_IN_INVOICE) $searchIn[] = 'invoice';
 		if(empty($searchIn)) return -3;
@@ -207,7 +206,6 @@ class InterfaceGetCustomerPriceWorkflow
 		
 		$sqlFinal = implode(' UNION ', $sqlToUse);
 		$sqlFinal.= ' ORDER BY date DESC LIMIT 1';
-		echo $sqlFinal;
 		
 		$prix = 0;
 		$resql = $this->db->query($sqlFinal);

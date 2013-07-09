@@ -1,1 +1,10 @@
 Module232000Name=Dernier prix client
+
+# ADMIN
+GetCustomerPriceSetup=Configuration du module de récupération du dernier prix client
+SeachInDocumentFrom=Chercher le prix pratiqué depuis
+DateFromThisYear=Cette année
+DateFromLastYear=L'année dernière
+SearchInProposal=Chercher dans les proposition commerciales
+SearchInOrder=Chercher dans les commandes
+SearchInInvoice=Chercher dans les factures

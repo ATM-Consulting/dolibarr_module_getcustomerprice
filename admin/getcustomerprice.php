@@ -19,7 +19,7 @@ $action=GETPOST('action');
 if (preg_match('/set_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
-	if (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', 0) > 0)
+	if (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', $conf->entity) > 0)
 	{
 		header("Location: ".$_SERVER["PHP_SELF"]);
 		exit;
@@ -63,6 +63,7 @@ print '<td>'.$langs->trans("Parameters").'</td>'."\n";
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="center" width="100">'.$langs->trans("Value").'</td>'."\n";
 
+
 // Search in document from
 $var=!$var;
 print '<tr '.$bc[$var].'>';
@@ -70,10 +71,10 @@ print '<td>'.$langs->trans("SeachInDocumentFrom").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 
 $dateFrom = array(
-	'thisyear' => 'DateFromThisYear'
-	,'lastyear' => 'DateFromLastYear'
+	'thisyear' => $langs->trans('DateFromThisYear')
+	,'lastyear' => $langs->trans('DateFromLastYear')
 );
-print '<td align="center" width="200">';
+print '<td align="center" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_GETCUSTOMERPRICE_DATEFROM">';
@@ -85,11 +86,11 @@ print '</td></tr>';
 // Search in propal
 $var=!$var;
 print '<tr '.$bc[$var].'>';
-print '<td>'.$langs->trans("SearchInPropal").'</td>';
+print '<td>'.$langs->trans("SearchInProposal").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 
-print '<td align="center" width="200">';
-print ajax_constantonoff('GETCUSTOMERPRICE_SEARCH_IN_PROPAL');
+print '<td align="center" width="300">';
+print ajax_constantonoff('GETCUSTOMERPRICE_SEARCH_IN_PROPOSAL');
 print '</td></tr>';
 
 // Search in order
@@ -98,7 +99,7 @@ print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("SearchInOrder").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 
-print '<td align="center" width="200">';
+print '<td align="center" width="300">';
 print ajax_constantonoff('GETCUSTOMERPRICE_SEARCH_IN_ORDER');
 print '</td></tr>';
 
@@ -108,7 +109,7 @@ print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("SearchInInvoice").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 
-print '<td align="center" width="200">';
+print '<td align="center" width="300">';
 print ajax_constantonoff('GETCUSTOMERPRICE_SEARCH_IN_INVOICE');
 print '</td></tr>';
 
