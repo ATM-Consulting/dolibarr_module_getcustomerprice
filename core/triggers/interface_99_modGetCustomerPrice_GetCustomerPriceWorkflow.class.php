@@ -165,7 +165,7 @@ class InterfaceGetCustomerPriceWorkflow
 		$subSelect = array();
 		$subSelect['FactureLigne'] = "SELECT f.fk_soc FROM ".MAIN_DB_PREFIX."facture f WHERE f.rowid = ".$objectLine->fk_facture;
 		$subSelect['OrderLine'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."commande c WHERE c.rowid = ".$objectLine->fk_commande;
-		$subSelect['PropaleLigne'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."propal p WHERE p.rowid = ".$objectLine->fk_propal;
+		$subSelect['PropaleLigne'] = "SELECT p.fk_soc FROM ".MAIN_DB_PREFIX."propal p WHERE p.rowid = ".$objectLine->fk_propal;
 		
 		// Select definition to get last price for customer
 		$sql = array();
