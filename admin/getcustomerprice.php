@@ -71,7 +71,8 @@ print '<td>'.$langs->trans("SeachInDocumentFrom").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 
 $dateFrom = array(
-	'thisyear' => $langs->trans('DateFromThisYear')
+	'nofilter' => $langs->trans('NoDateFilter')
+	,'thisyear' => $langs->trans('DateFromThisYear')
 	,'lastyear' => $langs->trans('DateFromLastYear')
 );
 print '<td align="center" width="300">';

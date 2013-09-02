@@ -1,0 +1,15 @@
++--------------------------+
+| 2013.09.02 - Version 1.1 |
++--------------------------+
+New : date filter : since always
+New : displays a warning message to tell the user where the price come from
+New : retrieves the discount in addition to the price
+Fix : SQL error while searching in proposal
+
++--------------------------+
+| 2013.07.09 - Version 1.0 |
++--------------------------+
+First release including :
+Search of price in proposal, order, invoice
+Can be filtered by doc type (proposal, order, invoice)
+Can be filtered by date (price since this year, since one year)

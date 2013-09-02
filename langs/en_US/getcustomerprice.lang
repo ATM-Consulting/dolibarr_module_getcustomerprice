@@ -3,8 +3,14 @@ Module232000Name=Get customer last price
 # ADMIN
 GetCustomerPriceSetup=Get customer price module setup
 SeachInDocumentFrom=Search price made to customer since
+NoDateFilter=Always
 DateFromThisYear=This year
-DateFromLastYear=Last year
+DateFromLastYear=One year
 SearchInProposal=Search in proposal
 SearchInOrder=Search in order
 SearchInInvoice=Search in invoice
+
+# MSG
+CustomerPriceFromPropal=Customer price retrieved from proposal %s
+CustomerPriceFromCommande=Customer price retrieved from order %s
+CustomerPriceFromFacture=Customer price retrieved from invoice %s

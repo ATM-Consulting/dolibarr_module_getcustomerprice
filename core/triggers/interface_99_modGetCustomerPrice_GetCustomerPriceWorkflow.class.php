@@ -93,20 +93,21 @@ class InterfaceGetCustomerPriceWorkflow
 
 	function run_trigger($action,$object,$user,$langs,$conf)
 	{
-		// TODO : add message if price is from a document rather than the product price
 		if (($action == 'LINEPROPAL_INSERT' || $action == 'LINEORDER_INSERT' || $action == 'LINEBILL_INSERT')
 			&& !empty($object->fk_product)) {
 			dol_include_once('/comm/propal/class/propal.class.php');
 			dol_include_once('/commande/class/commande.class.php');
 			dol_include_once('/compta/facture/class/facture.class.php');
 			
-			$prix = $this->_getLastPriceForCustomer($object);
+			$langs->load('getcustomerprice@getcustomerprice');
 			
-			if($prix > 0) {
+			$TInfos = $this->_getLastPriceForCustomer($object);
+			
+			if(!empty($TInfos) && !empty($TInfos['prix'])) {
 				$tabprice=calcul_price_total(
 					$object->qty,
-					$prix,
-					$object->remise_percent,
+					$TInfos['prix'],
+					$TInfos['remise_percent'],
 					$object->tva_tx,
 					$object->localtax1_tx,
 					$object->localtax2_tx,
@@ -125,6 +126,7 @@ class InterfaceGetCustomerPriceWorkflow
 				$pu_tva = $tabprice[4];
 				$pu_ttc = $tabprice[5];
 				
+				$object->remise_percent = $TInfos['remise_percent'];
 				$object->subprice = $pu_ht;
 				$object->total_ht = $total_ht;
 				$object->total_tva = $total_tva;
@@ -134,6 +136,8 @@ class InterfaceGetCustomerPriceWorkflow
 				
 				if($object->element == 'facturedet') $object->update($user, true);
 				else $object->update(true);
+				
+				setEventMessage($langs->trans('CustomerPriceFrom'.$TInfos['sourcetype'], $TInfos['source']->getNomUrl()), 'warnings');
 				
 				dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->rowid);
 				return 1;
@@ -157,6 +161,7 @@ class InterfaceGetCustomerPriceWorkflow
 		
 		// Define filter on date
 		$filterDate = array();
+		$filterDate['nofilter'] = '1970-01-01';
 		$filterDate['thisyear'] = 'MAKEDATE(EXTRACT(YEAR FROM NOW()), 1)';
 		$filterDate['lastyear'] = 'TIMESTAMPADD(YEAR, -1, NOW())';
 		$whDate = !empty($filterDate[$conf->global->GETCUSTOMERPRICE_DATEFROM]) ? $filterDate[$conf->global->GETCUSTOMERPRICE_DATEFROM] : $filterDate['thisyear'];
@@ -169,7 +174,7 @@ class InterfaceGetCustomerPriceWorkflow
 		
 		// Select definition to get last price for customer
 		$sql = array();
-		$sql['invoice'] = "SELECT f.fk_soc, fd.subprice, f.datef as date
+		$sql['invoice'] = "SELECT f.fk_soc, fd.subprice, fd.remise_percent, f.datef as date, f.rowid, 'Facture' as type
 					FROM ".MAIN_DB_PREFIX."facturedet fd
 					LEFT JOIN ".MAIN_DB_PREFIX."facture f ON fd.fk_facture = f.rowid
 					WHERE fd.fk_product = ".$objectLine->fk_product."
@@ -178,7 +183,7 @@ class InterfaceGetCustomerPriceWorkflow
 					AND f.datef >= ".$whDate."
 					ORDER BY date DESC
 					LIMIT 1";
-		$sql['order'] = "SELECT c.fk_soc, cd.subprice, c.date_commande as date
+		$sql['order'] = "SELECT c.fk_soc, cd.subprice, cd.remise_percent, c.date_commande as date, c.rowid, 'Commande' as type
 					FROM ".MAIN_DB_PREFIX."commandedet cd
 					LEFT JOIN ".MAIN_DB_PREFIX."commande c ON cd.fk_commande = c.rowid
 					WHERE cd.fk_product = ".$objectLine->fk_product."
@@ -187,7 +192,7 @@ class InterfaceGetCustomerPriceWorkflow
 					AND c.date_commande >= ".$whDate."
 					ORDER BY date DESC
 					LIMIT 1";
-		$sql['proposal'] = "SELECT p.fk_soc, pd.subprice, p.datep as date
+		$sql['proposal'] = "SELECT p.fk_soc, pd.subprice, pd.remise_percent, p.datep as date, p.rowid, 'Propal' as type
 					FROM ".MAIN_DB_PREFIX."propaldet pd
 					LEFT JOIN ".MAIN_DB_PREFIX."propal p ON pd.fk_propal = p.rowid
 					WHERE pd.fk_product = ".$objectLine->fk_product."
@@ -207,31 +212,42 @@ class InterfaceGetCustomerPriceWorkflow
 		$sqlFinal = implode(' UNION ', $sqlToUse);
 		$sqlFinal.= ' ORDER BY date DESC LIMIT 1';
 		
-		$prix = 0;
 		$resql = $this->db->query($sqlFinal);
 		if($resql) {
 			$obj = $this->db->fetch_object($resql);
 			$prix = $obj->subprice;
+			$remise_percent = $obj->remise_percent;
 			$fk_soc = $obj->fk_soc;
-		}
+			$class = $obj->type;
+			$rowid = $obj->rowid;
 		
-		if(!empty($prix)) {
-			// Load product
-			$product = new Product($this->db);
-			$product->fetch($objectLine->fk_product);
-			
-			// Load customer
-			$customer = new Societe($this->db);
-			$customer->fetch($fk_soc);
-			
-			// Check if last price is not less than min price
-			$price_min = $product->price_min;
-			if (!empty($conf->global->PRODUIT_MULTIPRICES) && !empty($customer->price_level))
-				$price_min = $product->multiprices_min[$customer->price_level];
+			if(!empty($prix)) {
+				// Load object the price is coming from
+				$o = new $class($this->db);
+				$o->fetch($rowid);
 				
-			if (!empty($price_min) && (price2num($prix)*(1-price2num($objectLine->remise_percent)/100) < price2num($price_min))) return -2;
-			
-			return $prix;
+				// Load product
+				$product = new Product($this->db);
+				$product->fetch($objectLine->fk_product);
+				
+				// Load customer
+				$customer = new Societe($this->db);
+				$customer->fetch($fk_soc);
+				
+				// Check if last price is not less than min price
+				$price_min = $product->price_min;
+				if (!empty($conf->global->PRODUIT_MULTIPRICES) && !empty($customer->price_level))
+					$price_min = $product->multiprices_min[$customer->price_level];
+					
+				if (!empty($price_min) && (price2num($prix)*(1-price2num($objectLine->remise_percent)/100) < price2num($price_min))) return -2;
+				
+				return array(
+					'prix' => price2num($prix)
+					,'remise_percent' => price2num($remise_percent)
+					,'sourcetype' => $class
+					,'source' => &$o
+				);
+			}
 		}
 		
 		return -1;
