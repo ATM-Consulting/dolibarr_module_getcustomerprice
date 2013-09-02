@@ -106,8 +106,8 @@ class InterfaceGetCustomerPriceWorkflow
 			if(!empty($TInfos) && !empty($TInfos['prix'])) {
 				$tabprice=calcul_price_total(
 					$object->qty,
-					$TInfos['prix'],
-					$TInfos['remise_percent'],
+					(strpos($conf->global->GETCUSTOMERPRICE_WHATTOGET,'price') !== false) ? $TInfos['prix'] : $object->subprice,
+					(strpos($conf->global->GETCUSTOMERPRICE_WHATTOGET,'discount') !== false) ? $TInfos['remise_percent'] : $object->remise_percent,
 					$object->tva_tx,
 					$object->localtax1_tx,
 					$object->localtax2_tx,
@@ -126,7 +126,7 @@ class InterfaceGetCustomerPriceWorkflow
 				$pu_tva = $tabprice[4];
 				$pu_ttc = $tabprice[5];
 				
-				$object->remise_percent = $TInfos['remise_percent'];
+				$object->remise_percent = (strpos($conf->global->GETCUSTOMERPRICE_WHATTOGET,'discount') !== false) ? $TInfos['remise_percent'] : $object->remise_percent;
 				$object->subprice = $pu_ht;
 				$object->total_ht = $total_ht;
 				$object->total_tva = $total_tva;

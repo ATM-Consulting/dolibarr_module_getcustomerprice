@@ -3,7 +3,7 @@
 +--------------------------+
 New : date filter : since always
 New : displays a warning message to tell the user where the price come from
-New : retrieves the discount in addition to the price
+New : can retrieve the discount in addition to the price (option to retriece price, discount or both)
 Fix : SQL error while searching in proposal
 
 +--------------------------+

@@ -75,11 +75,31 @@ $dateFrom = array(
 	,'thisyear' => $langs->trans('DateFromThisYear')
 	,'lastyear' => $langs->trans('DateFromLastYear')
 );
-print '<td align="center" width="300">';
+print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_GETCUSTOMERPRICE_DATEFROM">';
 print $form->selectarray('GETCUSTOMERPRICE_DATEFROM', $dateFrom, $conf->global->GETCUSTOMERPRICE_DATEFROM);
+print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+print '</form>';
+print '</td></tr>';
+
+// Get price, price + discount, discount
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("WhatToGet").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+
+$whattoget = array(
+	'price' => $langs->trans('GetPrice')
+	,'discount' => $langs->trans('GetDiscount')
+	,'price|discount' => $langs->trans('GetPriceAndDiscount')
+);
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_GETCUSTOMERPRICE_WHATTOGET">';
+print $form->selectarray('GETCUSTOMERPRICE_WHATTOGET', $whattoget, $conf->global->GETCUSTOMERPRICE_WHATTOGET);
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
