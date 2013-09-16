@@ -1,4 +1,5 @@
-Module232000Name=Dernier prix client
+Module104010Name=Dernier prix client
+Module104010Desc=Utilise le dernier prix pratiqué pour le client au lieu du prix catalogue
 
 # ADMIN
 GetCustomerPriceSetup=Configuration du module de récupération du dernier prix client

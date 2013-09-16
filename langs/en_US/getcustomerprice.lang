@@ -1,4 +1,5 @@
-Module232000Name=Get customer last price
+Module104010Name=Get customer last price
+Module104010Desc=Use the last customer price instead of the product standard price
 
 # ADMIN
 GetCustomerPriceSetup=Get customer price module setup
