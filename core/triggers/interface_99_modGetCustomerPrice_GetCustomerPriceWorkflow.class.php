@@ -172,35 +172,34 @@ class InterfaceGetCustomerPriceWorkflow
 		$subSelect['OrderLine'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."commande c WHERE c.rowid = ".$objectLine->fk_commande;
 		$subSelect['PropaleLigne'] = "SELECT p.fk_soc FROM ".MAIN_DB_PREFIX."propal p WHERE p.rowid = ".$objectLine->fk_propal;
 		
+		$globalSelect = "o.rowid, o.fk_soc, od.subprice, od.remise_percent, od.qty, ";
+		$globalWhere = "od.fk_product = ".$objectLine->fk_product."
+					AND o.fk_soc = (".$subSelect[get_class($objectLine)].")
+					AND o.fk_statut > 0
+					AND od.qty <= ".$objectLine->qty;
+		$globalOrder = "ORDER BY qty DESC, date DESC
+					LIMIT 1";
+		
 		// Select definition to get last price for customer
 		$sql = array();
-		$sql['invoice'] = "SELECT f.fk_soc, fd.subprice, fd.remise_percent, f.datef as date, f.rowid, 'Facture' as type
-					FROM ".MAIN_DB_PREFIX."facturedet fd
-					LEFT JOIN ".MAIN_DB_PREFIX."facture f ON fd.fk_facture = f.rowid
-					WHERE fd.fk_product = ".$objectLine->fk_product."
-					AND f.fk_soc = (".$subSelect[get_class($objectLine)].")
-					AND f.fk_statut > 0
-					AND f.datef >= ".$whDate."
-					ORDER BY date DESC
-					LIMIT 1";
-		$sql['order'] = "SELECT c.fk_soc, cd.subprice, cd.remise_percent, c.date_commande as date, c.rowid, 'Commande' as type
-					FROM ".MAIN_DB_PREFIX."commandedet cd
-					LEFT JOIN ".MAIN_DB_PREFIX."commande c ON cd.fk_commande = c.rowid
-					WHERE cd.fk_product = ".$objectLine->fk_product."
-					AND c.fk_soc = (".$subSelect[get_class($objectLine)].")
-					AND c.fk_statut > 0
-					AND c.date_commande >= ".$whDate."
-					ORDER BY date DESC
-					LIMIT 1";
-		$sql['proposal'] = "SELECT p.fk_soc, pd.subprice, pd.remise_percent, p.datep as date, p.rowid, 'Propal' as type
-					FROM ".MAIN_DB_PREFIX."propaldet pd
-					LEFT JOIN ".MAIN_DB_PREFIX."propal p ON pd.fk_propal = p.rowid
-					WHERE pd.fk_product = ".$objectLine->fk_product."
-					AND p.fk_soc = (".$subSelect[get_class($objectLine)].")
-					AND p.fk_statut > 0
-					AND p.datep >= ".$whDate."
-					ORDER BY date DESC
-					LIMIT 1";
+		$sql['invoice'] = "SELECT ".$globalSelect."o.datef as date, 'Facture' as type
+					FROM ".MAIN_DB_PREFIX."facturedet od
+					LEFT JOIN ".MAIN_DB_PREFIX."facture o ON od.fk_facture = o.rowid
+					WHERE ".$globalWhere."
+					AND o.datef >= ".$whDate."
+					".$globalOrder;
+		$sql['order'] = "SELECT ".$globalSelect."o.date_commande as date, 'Commande' as type
+					FROM ".MAIN_DB_PREFIX."commandedet od
+					LEFT JOIN ".MAIN_DB_PREFIX."commande o ON od.fk_commande = o.rowid
+					WHERE ".$globalWhere."
+					AND o.date_commande >= ".$whDate."
+					".$globalOrder;
+		$sql['proposal'] = "SELECT ".$globalSelect."o.datep as date, 'Propal' as type
+					FROM ".MAIN_DB_PREFIX."propaldet od
+					LEFT JOIN ".MAIN_DB_PREFIX."propal o ON od.fk_propal = o.rowid
+					WHERE ".$globalWhere."
+					AND o.datep >= ".$whDate."
+					".$globalOrder;
 		
 		$sqlToUse = array();
 		foreach($sql as $type => $query) {
@@ -213,6 +212,7 @@ class InterfaceGetCustomerPriceWorkflow
 		$sqlFinal.= ' ORDER BY date DESC LIMIT 1';
 		
 		$resql = $this->db->query($sqlFinal);
+		//echo $sqlFinal;
 		if($resql) {
 			$obj = $this->db->fetch_object($resql);
 			$prix = $obj->subprice;
