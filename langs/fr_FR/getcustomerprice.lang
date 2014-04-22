@@ -14,6 +14,10 @@ GetPriceAndDiscount=Prix et remise
 SearchInProposal=Chercher dans les proposition commerciales
 SearchInOrder=Chercher dans les commandes
 SearchInInvoice=Chercher dans les factures
+CategoryFilter=Filtre par catégorie tiers
+FilterByThirdPartyCategory=Filtrer par catégorie tiers
+AddThirdPartyCategoryInFilter=Ajouter un filtre par catégorie
+CategoryToFilter=Catégories à filtrer
 
 # MSG
 CustomerPriceFromPropal=Prix client récupéré de la proposition %s

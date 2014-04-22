@@ -14,6 +14,10 @@ GetPriceAndDiscount=Price and discount
 SearchInProposal=Search in proposal
 SearchInOrder=Search in order
 SearchInInvoice=Search in invoice
+CategoryFilter=Filter by third party category
+FilterByThirdPartyCategory=Filter by third party category
+AddThirdPartyCategoryInFilter=Add filter on third party category
+CategoryToFilter=Category to filter
 
 # MSG
 CustomerPriceFromPropal=Customer price retrieved from proposal %s
