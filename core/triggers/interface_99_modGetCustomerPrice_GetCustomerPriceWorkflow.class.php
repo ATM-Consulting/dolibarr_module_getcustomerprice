@@ -175,18 +175,18 @@ class InterfaceGetCustomerPriceWorkflow
 
 		$globalSelect = "o.rowid, o.fk_soc, od.subprice, od.remise_percent, od.qty, ";
 		$globalWhere = "od.fk_product = ".$objectLine->fk_product;
-
-		if(GETCUSTOMERPRICE_FILTER_THIRD_PARTY_CATEGORY){
-			$globalWhere .= "AND o.fk_soc IN (SELECT cat.fk_societe 
-											  FROM ".MAIN_DB_PREFIX."categorie_societe 
+		
+		if($conf->global->GETCUSTOMERPRICE_FILTER_THIRD_PARTY_CATEGORY){
+			$globalWhere .= " AND o.fk_soc IN (SELECT cat.fk_societe 
+											  FROM ".MAIN_DB_PREFIX."categorie_societe as cat
 											  WHERE cat.fk_categorie IN (SELECT DISTINCT(fk_categorie_societe)
 											  							 FROM ".MAIN_DB_PREFIX."categorie_customerprice))";
 		}
 		else{
-			$globalWhere .= "AND o.fk_soc = (".$subSelect[get_class($objectLine)].")";
+			$globalWhere .= " AND o.fk_soc = (".$subSelect[get_class($objectLine)].")";
 		}
 		
-		$globalWhere .= "AND o.fk_statut > 0
+		$globalWhere .= " AND o.fk_statut > 0
 						 AND od.qty <= ".$objectLine->qty;
 		$globalOrder = " ORDER BY qty DESC, date DESC
 						 LIMIT 1";
@@ -212,6 +212,8 @@ class InterfaceGetCustomerPriceWorkflow
 					AND o.datep >= ".$whDate."
 					".$globalOrder;
 		
+		//exit($sql['proposal']);
+		
 		$sqlToUse = array();
 		foreach($sql as $type => $query) {
 			if(in_array($type, $searchIn)) {
@@ -221,6 +223,8 @@ class InterfaceGetCustomerPriceWorkflow
 		
 		$sqlFinal = implode(' UNION ', $sqlToUse);
 		$sqlFinal.= ' ORDER BY date DESC LIMIT 1';
+		
+		//exit($sqlFinal);
 		
 		$resql = $this->db->query($sqlFinal);
 		//echo $sqlFinal;

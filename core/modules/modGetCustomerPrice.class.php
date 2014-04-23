@@ -113,7 +113,8 @@ class modGetCustomerPrice extends DolibarrModules
 			1=>array('GETCUSTOMERPRICE_SEARCH_IN_PROPOSAL','chaine','1','Search price in proposal',1,'current', 1),
 			2=>array('GETCUSTOMERPRICE_SEARCH_IN_ORDER','chaine','1','Search price in order',1,'current', 1),
 			3=>array('GETCUSTOMERPRICE_SEARCH_IN_INVOICE','chaine','1','Search price in invoice',1,'current', 1),
-			4=>array('GETCUSTOMERPRICE_WHATTOGET','chaine','price','What to retrieve',1,'current', 1)
+			4=>array('GETCUSTOMERPRICE_WHATTOGET','chaine','price','What to retrieve',1,'current', 1),
+			5=>array('GETCUSTOMERPRICE_FILTER_THIRD_PARTY_CATEGORY','chaine','1','Filter searchs whith category',1,'current', 1)
 		);
 
 		// Array to add new pages in new tabs
