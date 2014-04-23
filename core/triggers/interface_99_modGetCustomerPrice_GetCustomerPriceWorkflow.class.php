@@ -174,13 +174,16 @@ class InterfaceGetCustomerPriceWorkflow
 		$subSelect['PropaleLigne'] = "SELECT p.fk_soc FROM ".MAIN_DB_PREFIX."propal p WHERE p.rowid = ".$objectLine->fk_propal;
 
 		$globalSelect = "o.rowid, o.fk_soc, od.subprice, od.remise_percent, od.qty, ";
-		$globalWhere = "od.fk_product = ".$objectLine->fk_product;
+		$globalWhere = " od.fk_product = ".$objectLine->fk_product;
 		
 		if($conf->global->GETCUSTOMERPRICE_FILTER_THIRD_PARTY_CATEGORY){
 			$globalWhere .= " AND o.fk_soc IN (SELECT cat.fk_societe 
-											  FROM ".MAIN_DB_PREFIX."categorie_societe as cat
-											  WHERE cat.fk_categorie IN (SELECT DISTINCT(fk_categorie_societe)
-											  							 FROM ".MAIN_DB_PREFIX."categorie_customerprice))";
+											   FROM ".MAIN_DB_PREFIX."categorie_societe as cat
+											   WHERE cat.fk_categorie IN (SELECT cat1.fk_categorie_societe
+											  							 FROM ".MAIN_DB_PREFIX."categorie_customerprice as cat1)
+											   AND cat.fk_categorie IN (SELECT cat2.fk_categorie
+											   							FROM ".MAIN_DB_PREFIX."categorie_societe as cat2
+											   							WHERE cat2.fk_societe = (".$subSelect[get_class($objectLine)].")))";
 		}
 		else{
 			$globalWhere .= " AND o.fk_soc = (".$subSelect[get_class($objectLine)].")";
