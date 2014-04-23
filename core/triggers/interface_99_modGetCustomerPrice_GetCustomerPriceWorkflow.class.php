@@ -172,14 +172,24 @@ class InterfaceGetCustomerPriceWorkflow
 		$subSelect['FactureLigne'] = "SELECT f.fk_soc FROM ".MAIN_DB_PREFIX."facture f WHERE f.rowid = ".$objectLine->fk_facture;
 		$subSelect['OrderLine'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."commande c WHERE c.rowid = ".$objectLine->fk_commande;
 		$subSelect['PropaleLigne'] = "SELECT p.fk_soc FROM ".MAIN_DB_PREFIX."propal p WHERE p.rowid = ".$objectLine->fk_propal;
-		
+
 		$globalSelect = "o.rowid, o.fk_soc, od.subprice, od.remise_percent, od.qty, ";
-		$globalWhere = "od.fk_product = ".$objectLine->fk_product."
-					AND o.fk_soc = (".$subSelect[get_class($objectLine)].")
-					AND o.fk_statut > 0
-					AND od.qty <= ".$objectLine->qty;
-		$globalOrder = "ORDER BY qty DESC, date DESC
-					LIMIT 1";
+		$globalWhere = "od.fk_product = ".$objectLine->fk_product;
+
+		if(GETCUSTOMERPRICE_FILTER_THIRD_PARTY_CATEGORY){
+			$globalWhere .= "AND o.fk_soc IN (SELECT cat.fk_societe 
+											  FROM ".MAIN_DB_PREFIX."categorie_societe 
+											  WHERE cat.fk_categorie IN (SELECT DISTINCT(fk_categorie_societe)
+											  							 FROM ".MAIN_DB_PREFIX."categorie_customerprice))";
+		}
+		else{
+			$globalWhere .= "AND o.fk_soc = (".$subSelect[get_class($objectLine)].")";
+		}
+		
+		$globalWhere .= "AND o.fk_statut > 0
+						 AND od.qty <= ".$objectLine->qty;
+		$globalOrder = " ORDER BY qty DESC, date DESC
+						 LIMIT 1";
 		
 		// Select definition to get last price for customer
 		$sql = array();
