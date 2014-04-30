@@ -151,7 +151,7 @@ class InterfaceGetCustomerPriceWorkflow
 	}
 
 	function _getLastPriceForCustomer(&$objectLine) {
-		global $conf;
+		global $conf, $db;
 		
 		// Define filter for where to search
 		$searchIn = array();
@@ -176,7 +176,20 @@ class InterfaceGetCustomerPriceWorkflow
 		$globalSelect = "o.rowid, o.fk_soc, od.subprice, od.remise_percent, od.qty, ";
 		$globalWhere = " od.fk_product = ".$objectLine->fk_product;
 		
-		if($conf->global->GETCUSTOMERPRICE_FILTER_THIRD_PARTY_CATEGORY){
+		// On regarde si la société testée est dans une catégorie.
+		$query = "SELECT fk_categorie ";
+		$query.= " FROM ".MAIN_DB_PREFIX."categorie_societe";
+		$query.= " WHERE fk_societe = (".$subSelect[get_class($objectLine)].")";
+		
+		$resquery = $db->query($query);
+		
+		// $socHasACategory : 
+		// > 0 si la société est dans une catégorie
+		// = 0 si la société n'est pas dans une catégorie
+		$socHasACategory = $resquery->num_rows;
+		
+		// On filtre par catégorie si la constante est à 1 ET si la société est dans une catégorie.
+		if($conf->global->GETCUSTOMERPRICE_FILTER_THIRD_PARTY_CATEGORY && $socHasACategory > 0){
 			$globalWhere .= " AND o.fk_soc IN (SELECT cat.fk_societe 
 											   FROM ".MAIN_DB_PREFIX."categorie_societe as cat
 											   WHERE cat.fk_categorie IN (SELECT cat1.fk_categorie_societe
