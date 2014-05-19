@@ -94,7 +94,8 @@ class InterfaceGetCustomerPriceWorkflow
 	function run_trigger($action,$object,$user,$langs,$conf)
 	{
 		if (($action == 'LINEPROPAL_INSERT' || $action == 'LINEORDER_INSERT' || $action == 'LINEBILL_INSERT')
-			&& !empty($object->fk_product) && !empty($_REQUEST['addline_predefined'])) {
+			&& !empty($object->fk_product)) {
+			//&& !empty($object->fk_product) && !empty($_REQUEST['addline_predefined'])) {
 			
 			dol_include_once('/comm/propal/class/propal.class.php');
 			dol_include_once('/commande/class/commande.class.php');
