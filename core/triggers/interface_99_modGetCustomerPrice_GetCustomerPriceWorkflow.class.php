@@ -113,7 +113,7 @@ class InterfaceGetCustomerPriceWorkflow
 				if($object->element == 'facturedet') {
 					$f = new Facture($object->db);
 					$f->fetch($object->fk_facture);
-					if($f->type == 3) {
+					if($f->type == 2) {
 						$TInfos['prix'] *= -1;
 					}
 				}
