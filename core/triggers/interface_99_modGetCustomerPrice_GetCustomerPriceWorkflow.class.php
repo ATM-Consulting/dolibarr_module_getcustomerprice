@@ -109,6 +109,15 @@ class InterfaceGetCustomerPriceWorkflow
 			$TInfos = $this->_getLastPriceForCustomer($object);
 			
 			if(!empty($TInfos) && !empty($TInfos['prix'])) {
+				// Fonctionnement spécifique si on est sur une ligne d'avoir
+				if($object->element == 'facturedet') {
+					$f = new Facture($db);
+					$f->fetch($object->fk_facture);
+					if($f->type == 3) {
+						$TInfos['prix'] *= -1;
+					}
+				}
+				
 				$tabprice=calcul_price_total(
 					$object->qty,
 					(strpos($conf->global->GETCUSTOMERPRICE_WHATTOGET,'price') !== false) ? $TInfos['prix'] : $object->subprice,
