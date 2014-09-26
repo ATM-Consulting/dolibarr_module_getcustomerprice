@@ -178,7 +178,7 @@ print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans("AddThirdPartyCategoryInFilter").'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 
-dol_include_once('categories/class/categorie.class.php');
+dol_include_once('/categories/class/categorie.class.php');
 
 print '<td align="center" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
