@@ -93,6 +93,7 @@ class InterfaceGetCustomerPriceWorkflow
 
 	function run_trigger($action,$object,$user,$langs,$conf)
 	{
+		global $conf;
 		/*echo '<pre>';
 		print_r($_REQUEST);
 		echo '<pre>';
