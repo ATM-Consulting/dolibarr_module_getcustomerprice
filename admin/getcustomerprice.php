@@ -152,6 +152,16 @@ print '<td align="center" width="300">';
 print ajax_constantonoff('GETCUSTOMERPRICE_SEARCH_IN_INVOICE');
 print '</td></tr>';
 
+// Price by quantity
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("UsePriceByQty").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+
+print '<td align="center" width="300">';
+print ajax_constantonoff('GETCUSTOMERPRICE_PRICE_BY_QTY');
+print '</td></tr>';
+
 print '</table>';
 
 print '<br><br>';
