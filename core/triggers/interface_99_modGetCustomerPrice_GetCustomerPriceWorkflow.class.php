@@ -193,10 +193,12 @@ class InterfaceGetCustomerPriceWorkflow
 		$globalSelect = "o.rowid, o.fk_soc, od.subprice, od.remise_percent, od.qty, ";
 		$globalWhere = " od.fk_product = ".$objectLine->fk_product;
 		
+		$field_categorie_societe = ((float)DOL_VERSION >= 3.8) ? 'fk_soc' : 'fk_societe';
+		
 		// On regarde si la société testée est dans une catégorie.
 		$query = "SELECT fk_categorie ";
 		$query.= " FROM ".MAIN_DB_PREFIX."categorie_societe";
-		$query.= " WHERE fk_societe = (".$subSelect[get_class($objectLine)].")";
+		$query.= " WHERE ".$field_categorie_societe." = (".$subSelect[get_class($objectLine)].")";
 		$query.= " AND fk_categorie IN (".$subSelectCatFilter.")";
 		
 		$resquery = $db->query($query);
@@ -208,12 +210,12 @@ class InterfaceGetCustomerPriceWorkflow
 		
 		// On filtre par catégorie si la constante est à 1 ET si la société est dans une catégorie.
 		if($conf->global->GETCUSTOMERPRICE_FILTER_THIRD_PARTY_CATEGORY && $socHasACategory > 0){
-			$globalWhere .= " AND o.fk_soc IN (SELECT cat.fk_societe 
+			$globalWhere .= " AND o.fk_soc IN (SELECT cat.".$field_categorie_societe." 
 											   FROM ".MAIN_DB_PREFIX."categorie_societe as cat
 											   WHERE cat.fk_categorie IN (".$subSelectCatFilter.")
 											   AND cat.fk_categorie IN (SELECT cat2.fk_categorie
 											   							FROM ".MAIN_DB_PREFIX."categorie_societe as cat2
-											   							WHERE cat2.fk_societe = (".$subSelect[get_class($objectLine)].")))";
+											   							WHERE cat2.".$field_categorie_societe." = (".$subSelect[get_class($objectLine)].")))";
 		}
 		else{
 			$globalWhere .= " AND o.fk_soc = (".$subSelect[get_class($objectLine)].")";
