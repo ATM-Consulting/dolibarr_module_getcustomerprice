@@ -149,8 +149,8 @@ class InterfaceGetCustomerPriceWorkflow
 				$object->total_localtax1 = $total_localtax1;
 				$object->total_localtax2 = $total_localtax2;
 				
-				if($object->element == 'facturedet') $object->update($user, true);
-				else $object->update(true);
+				if($object->element == 'facturedet') $object->update($user);
+				else $object->update();
 				
 				setEventMessage($langs->trans('CustomerPriceFrom'.$TInfos['sourcetype'], $TInfos['source']->getNomUrl()), 'warnings');
 				
