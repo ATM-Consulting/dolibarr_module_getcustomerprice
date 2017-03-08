@@ -270,7 +270,7 @@ class InterfaceGetCustomerPriceWorkflow
 		//exit($sqlFinal);
 
 		$resql = $this->db->query($sqlFinal);
-		echo $sqlFinal;
+		//echo $sqlFinal;
 		if($resql) {
 			$obj = $this->db->fetch_object($resql);
 			$prix = $obj->subprice;
