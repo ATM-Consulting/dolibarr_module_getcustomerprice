@@ -157,6 +157,17 @@ class InterfaceGetCustomerPriceWorkflow
 				$object->total_localtax1 = $total_localtax1;
 				$object->total_localtax2 = $total_localtax2;
 
+				$price = $pu_ht;
+				$remise = 0;
+				if ($object->remise_percent> 0)
+				{
+					$remise = round(($price * $object->remise_percent/ 100), 2);
+					$price = $price - $remise;
+				}
+
+				$object->price = $price;
+				$object->remise = $remise;
+
 				if($object->element == 'facturedet') $object->update($user);
 				else $object->update();
 
