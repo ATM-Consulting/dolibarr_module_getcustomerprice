@@ -183,7 +183,7 @@ class InterfaceGetCustomerPriceWorkflow
 		return 0;
 	}
 
-	function _getLastPriceForCustomer(&$objectLine) {
+	function _getLastPriceForCustomer(&$objectLine, $socid=0) {
 		global $conf, $db;
 
 		// Define filter for where to search
@@ -202,9 +202,9 @@ class InterfaceGetCustomerPriceWorkflow
 
 		// Subselect definition to get soc id
 		$subSelect = array();
-		$subSelect['FactureLigne'] = "SELECT f.fk_soc FROM ".MAIN_DB_PREFIX."facture f WHERE f.rowid = ".$objectLine->fk_facture;
-		$subSelect['OrderLine'] = "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."commande c WHERE c.rowid = ".$objectLine->fk_commande;
-		$subSelect['PropaleLigne'] = "SELECT p.fk_soc FROM ".MAIN_DB_PREFIX."propal p WHERE p.rowid = ".$objectLine->fk_propal;
+		$subSelect['FactureLigne'] = empty($socid) ? "SELECT f.fk_soc FROM ".MAIN_DB_PREFIX."facture f WHERE f.rowid = ".$objectLine->fk_facture : $socid;
+		$subSelect['OrderLine'] = empty($socid) ? "SELECT c.fk_soc FROM ".MAIN_DB_PREFIX."commande c WHERE c.rowid = ".$objectLine->fk_commande : $socid;
+		$subSelect['PropaleLigne'] = empty($socid) ? "SELECT p.fk_soc FROM ".MAIN_DB_PREFIX."propal p WHERE p.rowid = ".$objectLine->fk_propal : $socid;
 
 		// Subselect definition to get filtered categories
 		$subSelectCatFilter = "SELECT cat1.fk_categorie_societe FROM ".MAIN_DB_PREFIX."categorie_customerprice as cat1";
