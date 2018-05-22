@@ -92,8 +92,18 @@ if($action == 'save_multicompany_shared_conf')
 /*
  * View
  */
+$extrajs = $extracss = array();
+if(!empty($conf->multicompany->enabled) && !empty($conf->global->MULTICOMPANY_SHARINGS_ENABLED) )
+{
+    $extrajs = array(
+        '/multicompany/inc/multiselect/js/ui.multiselect.js',
+    );
+    $extracss = array(
+        '/multicompany/inc/multiselect/css/ui.multiselect.css',
+    );
+}
 
-llxHeader('',$langs->trans("GetCustomerPriceSetup"));
+llxHeader('',$langs->trans("GetCustomerPriceSetup"),'','','','',$extrajs,$extracss);
 
 $linkback='<a href="'.DOL_URL_ROOT.'/admin/modules.php">'.$langs->trans("BackToModuleList").'</a>';
 print_fiche_titre($langs->trans("GetCustomerPriceSetup"),$linkback,'getcustomerprice@getcustomerprice');
@@ -329,6 +339,25 @@ if(!empty($conf->multicompany->enabled) && !empty($conf->global->MULTICOMPANY_SH
     print '</table>';
     
     print '</form>';
+    
+    
+    $langs->loadLangs(array( 'languages', 'multicompany@multicompany'));
+    
+    print '<script type="text/javascript">';
+    print '$(document).ready(function () {';
+    
+    print '     $.extend($.ui.multiselect.locale, {';
+    print '         addAll:\''.$langs->transnoentities("AddAll").'\',';
+    print '         removeAll:\''.$langs->transnoentities("RemoveAll").'\',';
+    print '         itemsCount:\''.$langs->transnoentities("ItemsCount").'\'';
+    print '    });';
+    
+    
+    print '    $(function(){';
+    print '        $(".multiselect").multiselect({sortable: false, searchable: false});';
+    print '    });';
+    print '});';
+    print '</script>';
 }
 
 
