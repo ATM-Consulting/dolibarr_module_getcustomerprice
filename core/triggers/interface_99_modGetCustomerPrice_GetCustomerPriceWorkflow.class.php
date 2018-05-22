@@ -253,7 +253,7 @@ class InterfaceGetCustomerPriceWorkflow
 			$globalWhere .= " AND o.fk_soc = (".$subSelect[get_class($objectLine)].")";
 		}
 
-		$globalWhere .= " AND o.fk_statut > 0";
+		$globalWhere .= " AND o.fk_statut > 0 AND o.entity IN(".getEntity('customerprice').") ";
 		if($conf->global->GETCUSTOMERPRICE_PRICE_BY_QTY) $globalWhere .= " AND od.qty <= ".$objectLine->qty;
 		$globalOrder = " ORDER BY qty DESC, date DESC
 						 LIMIT 1";
