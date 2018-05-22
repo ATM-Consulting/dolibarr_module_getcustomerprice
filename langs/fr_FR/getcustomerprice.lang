@@ -19,6 +19,10 @@ CategoryFilter=Filtre par catégorie tiers
 FilterByThirdPartyCategory=Filtrer par catégorie tiers
 AddThirdPartyCategoryInFilter=Ajouter un filtre par catégorie
 CategoryToFilter=Catégories à filtrer
+Multicompany=Options du module multi sociétés
+ActivateSharing=Activer le partage des prix client entre entités (pensez à configurer le partage ci-dessous)
+ShareWith=Partager avec
+MulticompanyConfiguration=Configuration des partages entre entités
 
 # MSG
 CustomerPriceFromPropal=Prix client récupéré de la proposition %s

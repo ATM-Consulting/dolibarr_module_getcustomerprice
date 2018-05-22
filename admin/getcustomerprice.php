@@ -61,6 +61,34 @@ if($action == "delete"){
 	}
 }
 
+if($action == 'save_multicompany_shared_conf')
+{
+    $multicompanypriceshare = GETPOST('multicompany-customerprice','array');
+    
+    if(!empty($multicompanypriceshare))
+    {
+        foreach ($multicompanypriceshare as $entityId => $shared)
+        {
+            
+            //'MULTICOMPANY_'.strtoupper($element).'_SHARING_ENABLED
+            if(is_array($shared)){
+                $shared = array_map('intval', $shared);
+
+                $dao = new DaoMulticompany($db);
+                if($dao->fetch($entityId)>0)
+                {
+                    $dao->options['sharings']['customerprice']  = $shared;
+                    if($dao->update($entityId, $user)<1)
+                    {
+                        setEventMessage('Error');
+                    }
+                }
+            }
+        }
+    }
+    
+}
+
 /*
  * View
  */
@@ -226,7 +254,131 @@ while($res = $db->fetch_object($resql)){
 
 print '</table>';
 
+
+
+if(!empty($conf->multicompany->enabled) && !empty($conf->global->MULTICOMPANY_SHARINGS_ENABLED) )
+{
+    
+    print '<br><br>';
+    
+    //var_dump($mc);
+    print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+    print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+    print '<input type="hidden" name="action" value="save_multicompany_shared_conf">';
+    
+    print '<table class="noborder" width="100%">';
+    print '<tr class="liste_titre">';
+    print '<td>'.$langs->trans("Multicompany").'</td>'."\n";
+    print '<td align="center" ></td>';
+    print '</tr>';
+    
+    $element = 'customerprice';
+    $moduleSharingEnabled = 'MULTICOMPANY_'.strtoupper($element).'_SHARING_ENABLED';
+    
+    
+    
+    print '<tr class="oddeven" >';
+    print '<td align="left" >';
+    print $langs->trans("ActivateSharing");
+    print '</td>';
+    print '<td align="center" >';
+    print ajax_constantonoff($moduleSharingEnabled, array(),0);
+    print '</td>';
+    print '</tr>';
+    
+    
+    print '<tr class="liste_titre">';
+    print '<td>'.$langs->trans("MulticompanyConfiguration").'</td>'."\n";
+    print '<td align="center" >'.$langs->trans("ShareWith").'</td>';
+    print '</tr>';
+    
+    $m=new ActionsMulticompany($db);
+    
+    $dao = new DaoMulticompany($db);
+    $dao->getEntities();
+    
+    if (is_array($dao->entities))
+    {
+    
+        foreach($dao->entities as $entitie)
+        {
+
+            if(intval($conf->entity) === 1 || intval($conf->entity) === intval($entitie->id))
+            {
+                
+                print '<tr class="oddeven" >';
+                print '<td align="left" >';
+                print $entitie->name.' <em>('.$entitie->label.')</em> '.$mc->getEntity('customerprice');
+               // 
+                print '</td>';
+                print '<td align="center" >';
+                print _multiselect_entities('multicompany-customerprice['.$entitie->id.']', $entitie,'',$element);
+                print '</td>';
+                print '</tr>';
+            }
+            
+        }
+        
+        
+        print '<tr>';
+        print '<td colspan="2" style="text-align:right;" >';
+        print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+        print '</td>';
+        print '</tr>';
+    }
+    print '</table>';
+    
+    print '</form>';
+}
+
+
 // Footer
 llxFooter();
 // Close database handler
 $db->close();
+
+
+/**
+ *	Return multiselect list of entities.
+ *
+ *	@param	string	$htmlname	Name of select
+ *	@param	DaoMulticompany	$current	Current entity to manage
+ *	@param	string	$option		Option
+ *	@return	string
+ */
+function _multiselect_entities($htmlname, $current, $option='',$sharingElement = '')
+{
+    global $conf, $langs, $db;
+    
+    $dao = new DaoMulticompany($db);
+    $dao->getEntities();
+    
+    $sharingElement = !empty($sharingElement)?$sharingElement:$htmlname;
+    
+    $return = '<select id="'.$htmlname.'" class="multiselect" multiple="multiple" name="'.$htmlname.'[]" '.$option.'>';
+    if (is_array($dao->entities))
+    {
+        foreach ($dao->entities as $entity)
+        {
+            if (is_object($current) && $current->id != $entity->id && $entity->active == 1)
+            {
+                $return.= '<option value="'.$entity->id.'" ';
+                if (is_array($current->options['sharings'][$sharingElement]) && in_array($entity->id, $current->options['sharings'][$sharingElement]))
+                {
+                    $return.= 'selected="selected"';
+                }
+                $return.= '>';
+                $return.= $entity->label;
+                if (empty($entity->visible))
+                {
+                    $return.= ' ('.$langs->trans('Hidden').')';
+                }
+                $return.= '</option>';
+            }
+        }
+    }
+    $return.= '</select>';
+    
+    return $return;
+}
+

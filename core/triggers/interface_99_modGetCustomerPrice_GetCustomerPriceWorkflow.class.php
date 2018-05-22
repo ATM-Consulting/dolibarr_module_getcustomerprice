@@ -93,8 +93,21 @@ class InterfaceGetCustomerPriceWorkflow
 
 	function run_trigger($action,$object,$user,$langs,$conf)
 	{
-		global $conf;
+	    global $conf, $mc;
 
+		// multicompagny tweak
+		if (is_object($mc))
+		{
+		    
+		    if(!in_array('customerprice', $mc->sharingelements)){
+		        $mc->sharingelements[] = 'customerprice';
+		    }
+		    
+		    if(!isset($mc->sharingobjects['customerprice'])){
+		        $mc->sharingobjects['customerprice'] = array('element'=>'getcustomerprice');
+		    }
+		}
+		
 		/*echo '<pre>';
 		print_r($_REQUEST);
 		echo '<pre>';
