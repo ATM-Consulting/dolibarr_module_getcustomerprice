@@ -93,8 +93,21 @@ class InterfaceGetCustomerPriceWorkflow
 
 	function run_trigger($action,$object,$user,$langs,$conf)
 	{
-		global $conf;
+	    global $conf, $mc;
 
+		// multicompagny tweak
+		if (is_object($mc))
+		{
+		    
+		    if(!in_array('customerprice', $mc->sharingelements)){
+		        $mc->sharingelements[] = 'customerprice';
+		    }
+		    
+		    if(!isset($mc->sharingobjects['customerprice'])){
+		        $mc->sharingobjects['customerprice'] = array('element'=>'getcustomerprice');
+		    }
+		}
+		
 		/*echo '<pre>';
 		print_r($_REQUEST);
 		echo '<pre>';
@@ -240,7 +253,7 @@ class InterfaceGetCustomerPriceWorkflow
 			$globalWhere .= " AND o.fk_soc = (".$subSelect[get_class($objectLine)].")";
 		}
 
-		$globalWhere .= " AND o.fk_statut > 0";
+		$globalWhere .= " AND o.fk_statut > 0 AND o.entity IN(".getEntity('customerprice').") ";
 		if($conf->global->GETCUSTOMERPRICE_PRICE_BY_QTY) $globalWhere .= " AND od.qty <= ".$objectLine->qty;
 		$globalOrder = " ORDER BY qty DESC, date DESC
 						 LIMIT 1";
