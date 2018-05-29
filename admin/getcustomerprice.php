@@ -318,7 +318,7 @@ if(!empty($conf->multicompany->enabled) && !empty($conf->global->MULTICOMPANY_SH
                 
                 print '<tr class="oddeven" >';
                 print '<td align="left" >';
-                print $entitie->name.' <em>('.$entitie->label.')</em> '.$mc->getEntity('customerprice');
+                print $entitie->name.' <em>('.$entitie->label.')</em> ';
                // 
                 print '</td>';
                 print '<td align="center" >';
