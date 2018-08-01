@@ -169,7 +169,10 @@ class InterfaceGetCustomerPriceWorkflow
 				$object->remise = $remise;
 
 				if($object->element == 'facturedet') $object->update($user);
-				else $object->update();
+				else {
+					if((float)DOL_VERSION > 4.0) $object->update($user); // Bug en 7.0 si on spécifie pas $user... (test sur la version obligatoire car avant 5.0 premier param = $notrigger)
+					else $object->update();
+				}
 
 				setEventMessage($langs->trans('CustomerPriceFrom'.$TInfos['sourcetype'], $TInfos['source']->getNomUrl()), 'warnings');
 
