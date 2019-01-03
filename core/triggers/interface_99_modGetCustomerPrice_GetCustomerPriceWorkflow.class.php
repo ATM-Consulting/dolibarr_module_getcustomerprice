@@ -169,7 +169,7 @@ class InterfaceGetCustomerPriceWorkflow
 				$object->remise = $remise;
 
 				if($object->element == 'facturedet') $object->update($user);
-				else $object->update();
+				else $object->update($user);
 
 				setEventMessage($langs->trans('CustomerPriceFrom'.$TInfos['sourcetype'], $TInfos['source']->getNomUrl()), 'warnings');
 
