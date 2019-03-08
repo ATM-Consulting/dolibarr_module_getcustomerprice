@@ -199,7 +199,7 @@ class InterfaceGetCustomerPriceWorkflow
 	}
 
 	function _getLastPriceForCustomer(&$objectLine) {
-		global $conf, $db;
+		global $conf, $db, $user, $langs;
 
 		// Define filter for where to search
 		$searchIn = array();
@@ -301,6 +301,7 @@ class InterfaceGetCustomerPriceWorkflow
 			$obj = $this->db->fetch_object($resql);
 			$prix = $obj->subprice;
 			$remise_percent = $obj->remise_percent;
+            $prix_remise = price2num($prix)*(1-price2num($remise_percent)/100);
 			$fk_soc = $obj->fk_soc;
 			$class = $obj->type;
 			$rowid = $obj->rowid;
@@ -323,7 +324,20 @@ class InterfaceGetCustomerPriceWorkflow
 				if (!empty($conf->global->PRODUIT_MULTIPRICES) && !empty($customer->price_level))
 					$price_min = $product->multiprices_min[$customer->price_level];
 
-				if (!empty($price_min) && (price2num($prix)*(1-price2num($objectLine->remise_percent)/100) < price2num($price_min))) return -2;
+				if(empty($conf->global->GETCUSTOMERPRICE_ADAPT_PRICE_FROM_SOURCE)) {
+                    if (! empty($price_min) && $prix_remise < price2num($price_min)) return -2;
+                }
+				else {
+				    if(empty($conf->global->MAIN_USE_ADVANCED_PERMS) || ! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && empty($user->rights->produit->ignore_price_min_advance)) {
+				        setEventMessage($langs->trans('PriceFoundButBelowPriceMin', price(price2num($prix_remise, 'MU'), 0, $langs, 0, 0, - 1, $conf->currency), price(price2num($price_min, 'MU'), 0, $langs, 0, 0, - 1, $conf->currency)), 'warnings');
+                        return array(
+                            'prix' => price2num($price_min),
+                            'remise_percent' => (1 - price2num($price_min / $prix)) * 100,
+                            'sourcetype' => $class,
+                            'source' => &$o
+                        );
+                    }
+                }
 
 				return array(
 					'prix' => price2num($prix)

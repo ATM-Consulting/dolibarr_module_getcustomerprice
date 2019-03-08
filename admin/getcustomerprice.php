@@ -200,6 +200,16 @@ print '<td align="center" width="300">';
 print ajax_constantonoff('GETCUSTOMERPRICE_PRICE_BY_QTY');
 print '</td></tr>';
 
+// Price min
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$form->textwithpicto($langs->trans("UsePriceMinAsDiscountPrice"), $langs->trans('UsePriceMinAsDiscountPrice_tooltip')).'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+
+print '<td align="center" width="300">';
+print ajax_constantonoff('GETCUSTOMERPRICE_ADAPT_PRICE_FROM_SOURCE');
+print '</td></tr>';
+
 print '</table>';
 
 print '<br><br>';
