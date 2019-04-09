@@ -150,8 +150,10 @@ class InterfaceGetCustomerPriceWorkflow
 				$object->total_localtax2 = $total_localtax2;
 				
 				if($object->element == 'facturedet') $object->update($user, true);
-				else $object->update(true);
-				
+				else {
+					if((float)DOL_VERSION > 4.0) $object->update($user); // Bug en 7.0 si on spécifie pas $user... (test sur la version obligatoire car avant 5.0 premier param = $notrigger)
+					else $object->update();
+				}				
 				setEventMessage($langs->trans('CustomerPriceFrom'.$TInfos['sourcetype'], $TInfos['source']->getNomUrl()), 'warnings');
 				
 				dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->rowid);
