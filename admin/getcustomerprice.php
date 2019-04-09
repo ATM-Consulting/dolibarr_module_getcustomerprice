@@ -162,6 +162,16 @@ print '<td align="center" width="300">';
 print ajax_constantonoff('GETCUSTOMERPRICE_PRICE_BY_QTY');
 print '</td></tr>';
 
+// Allow price 0
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("AlloowGetPrice0").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+
+print '<td align="center" width="300">';
+print ajax_constantonoff('GETCUSTOMERPRICE_ALLOW_GET_PRICE_0');
+print '</td></tr>';
+
 print '</table>';
 
 print '<br><br>';
