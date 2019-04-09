@@ -19,6 +19,7 @@ CategoryFilter=Filter by third party category
 FilterByThirdPartyCategory=Filter by third party category
 AddThirdPartyCategoryInFilter=Add filter on third party category
 CategoryToFilter=Category to filter
+AlloowGetPrice0=Allow getting price to 0
 
 # MSG
 CustomerPriceFromPropal=Customer price retrieved from proposal %s

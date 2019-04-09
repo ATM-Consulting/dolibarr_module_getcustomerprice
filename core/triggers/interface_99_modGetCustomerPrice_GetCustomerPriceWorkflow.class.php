@@ -117,7 +117,7 @@ class InterfaceGetCustomerPriceWorkflow
 
 			$TInfos = $this->_getLastPriceForCustomer($object);
 
-			if(!empty($TInfos) && !empty($TInfos['prix'])) {
+			if($TInfos !== -1 && (!empty($TInfos['prix']) || !empty($conf->global->GETCUSTOMERPRICE_ALLOW_GET_PRICE_0))) {
 				// Fonctionnement spécifique si on est sur une ligne d'avoir
 				if($object->element == 'facturedet') {
 					$f = new Facture($object->db);

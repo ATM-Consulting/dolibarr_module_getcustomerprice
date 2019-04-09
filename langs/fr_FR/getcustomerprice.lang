@@ -19,6 +19,7 @@ CategoryFilter=Filtre par catégorie tiers
 FilterByThirdPartyCategory=Filtrer par catégorie tiers
 AddThirdPartyCategoryInFilter=Ajouter un filtre par catégorie
 CategoryToFilter=Catégories à filtrer
+AlloowGetPrice0=Autoriser la récupération des prix à 0
 
 # MSG
 CustomerPriceFromPropal=Prix client récupéré de la proposition %s
