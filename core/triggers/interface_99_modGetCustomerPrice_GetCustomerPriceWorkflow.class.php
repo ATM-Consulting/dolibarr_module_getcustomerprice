@@ -132,6 +132,7 @@ class InterfaceGetCustomerPriceWorkflow
 
 			$TInfos = $this->_getLastPriceForCustomer($object);
 
+
 			if(!empty($TInfos) && !empty($TInfos['prix'])) {
 				// Fonctionnement spécifique si on est sur une ligne d'avoir
 				if($object->element == 'facturedet') {
@@ -331,7 +332,7 @@ class InterfaceGetCustomerPriceWorkflow
 				    if(empty($conf->global->MAIN_USE_ADVANCED_PERMS) || ! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && empty($user->rights->produit->ignore_price_min_advance)) {
 				        setEventMessage($langs->trans('PriceFoundButBelowPriceMin', price(price2num($prix_remise, 'MU'), 0, $langs, 0, 0, - 1, $conf->currency), price(price2num($price_min, 'MU'), 0, $langs, 0, 0, - 1, $conf->currency)), 'warnings');
                         return array(
-                            'prix' => price2num($price_min),
+                            'prix' => price2num($prix),
                             'remise_percent' => (1 - price2num($price_min / $prix)) * 100,
                             'sourcetype' => $class,
                             'source' => &$o
