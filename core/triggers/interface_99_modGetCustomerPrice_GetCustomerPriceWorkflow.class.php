@@ -329,14 +329,17 @@ class InterfaceGetCustomerPriceWorkflow
                     if (! empty($price_min) && $prix_remise < price2num($price_min)) return -2;
                 }
 				else {
+				    // On est dans le cas où on a pas les droits pour aller en dessous du prix minimum
 				    if(empty($conf->global->MAIN_USE_ADVANCED_PERMS) || ! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && empty($user->rights->produit->ignore_price_min_advance)) {
-				        setEventMessage($langs->trans('PriceFoundButBelowPriceMin', price(price2num($prix_remise, 'MU'), 0, $langs, 0, 0, - 1, $conf->currency), price(price2num($price_min, 'MU'), 0, $langs, 0, 0, - 1, $conf->currency)), 'warnings');
-                        return array(
-                            'prix' => price2num($prix),
-                            'remise_percent' => (1 - price2num($price_min / $prix)) * 100,
-                            'sourcetype' => $class,
-                            'source' => &$o
-                        );
+				        if(! empty($price_min) && $prix_remise < price2num($price_min)) {
+                            setEventMessage($langs->trans('PriceFoundButBelowPriceMin', price(price2num($prix_remise, 'MU'), 0, $langs, 0, 0, -1, $conf->currency), price(price2num($price_min, 'MU'), 0, $langs, 0, 0, -1, $conf->currency)), 'warnings');
+                            return array(
+                                'prix' => price2num($prix),
+                                'remise_percent' => (1 - price2num($price_min / $prix)) * 100,
+                                'sourcetype' => $class,
+                                'source' => &$o
+                            );
+                        }
                     }
                 }
 
