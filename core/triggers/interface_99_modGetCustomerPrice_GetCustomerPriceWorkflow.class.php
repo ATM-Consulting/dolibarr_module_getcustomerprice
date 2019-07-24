@@ -99,7 +99,7 @@ class InterfaceGetCustomerPriceWorkflow
 		if (is_object($mc))
 		{
 		    
-		    if(!in_array('customerprice', $mc->sharingelements)){
+		    if(!empty($mc->sharingelements) && !in_array('customerprice', $mc->sharingelements)){
 		        $mc->sharingelements[] = 'customerprice';
 		    }
 		    
