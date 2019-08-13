@@ -244,9 +244,10 @@ class InterfaceGetCustomerPriceWorkflow
 		}
 
 		$globalWhere .= " AND o.fk_statut > 0";
-		if($conf->global->GETCUSTOMERPRICE_PRICE_BY_QTY) $globalWhere .= " AND od.qty <= ".$objectLine->qty;
-		$globalOrder = " ORDER BY qty DESC, date DESC
-						 LIMIT 1";
+		if(!empty($conf->global->GETCUSTOMERPRICE_PRICE_BY_QTY)) {
+			$globalWhere .= " AND od.qty <= ".$objectLine->qty;
+			$globalOrder = " ORDER BY qty DESC, date DESC LIMIT 1";
+		} else $globalOrder = " ORDER BY date DESC LIMIT 1";
 
 		// Select definition to get last price for customer
 		$sql = array();
