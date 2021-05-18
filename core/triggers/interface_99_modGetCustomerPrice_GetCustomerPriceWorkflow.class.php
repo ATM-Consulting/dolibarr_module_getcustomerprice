@@ -174,7 +174,7 @@ class InterfaceGetCustomerPriceWorkflow
 					else $object->update();
 				}
 
-				setEventMessage($langs->trans('CustomerPriceFrom'.$TInfos['sourcetype'], $TInfos['source']->getNomUrl()), 'warnings');
+				setEventMessage($langs->transnoentities('CustomerPriceFrom'.$TInfos['sourcetype'], $TInfos['source']->getNomUrl()), 'warnings');
 
 				dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->rowid);
 				return 1;
