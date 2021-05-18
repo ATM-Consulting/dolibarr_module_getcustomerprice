@@ -26,6 +26,7 @@ MulticompanyConfiguration=Configuration des partages entre entités
 UsePriceMinAsDiscountPrice=Utiliser le prix minimum d'un produit comme prix de vente HT
 UsePriceMinAsDiscountPrice_tooltip=Uniquement si le prix trouvé est inférieur au prix minimum du produit en question
 PriceFoundButBelowPriceMin=Le prix client récupéré est de %s mais celui est inférieur au prix minimum du produit (%s)
+AlloowGetPrice0=Autoriser la récupération des prix à 0
 
 # MSG
 CustomerPriceFromPropal=Prix client récupéré de la proposition %s

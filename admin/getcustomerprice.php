@@ -103,7 +103,7 @@ if(!empty($conf->multicompany->enabled) && !empty($conf->global->MULTICOMPANY_SH
     );
 }
 
-llxHeader('',$langs->trans("GetCustomerPriceSetup"),'','','','',$extrajs,$extracss);
+llxHeader('',$langs->trans("GetCustomerPriceSetup"));
 
 $linkback='<a href="'.DOL_URL_ROOT.'/admin/modules.php">'.$langs->trans("BackToModuleList").'</a>';
 print_fiche_titre($langs->trans("GetCustomerPriceSetup"),$linkback,'getcustomerprice@getcustomerprice');
