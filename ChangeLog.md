@@ -1,9 +1,9 @@
 # Change Log for GetCustomerPrice
 
 ## Unreleased
-- FIX: v14 compat (no change required); updated module descriptor; new ChangeLog - 1.3.3 - *2021-06-29*
 
 ## 1.3
+- FIX: v14 compat (no change required); updated module descriptor; new ChangeLog - 1.3.3 - *2021-06-29*
 - FIX: various minor fixes
 - FIX: min price issue when used with discount
 
