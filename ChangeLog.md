@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.3
+- FIX: warnings (SQL query success does not guarantee a non-empty resultset) - 1.3.4 - *2021-10-12*
 - FIX: v14 compat (no change required); updated module descriptor; new ChangeLog - 1.3.3 - *2021-06-29*
 - FIX: various minor fixes
 - FIX: min price issue when used with discount

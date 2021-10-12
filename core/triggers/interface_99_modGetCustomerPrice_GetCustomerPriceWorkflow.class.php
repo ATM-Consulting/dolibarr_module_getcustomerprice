@@ -98,18 +98,18 @@ class InterfaceGetCustomerPriceWorkflow
 		// multicompagny tweak
 		if (is_object($mc))
 		{
-		    
+
 		    if(!empty($mc->sharingelements) && !in_array('customerprice', $mc->sharingelements)){
 		        $mc->sharingelements[] = 'customerprice';
 		    }
-		    
+
 		    if(!isset($mc->sharingobjects['customerprice'])){
 		        $mc->sharingobjects['customerprice'] = array('element'=>'getcustomerprice');
 		    }
-		    
+
 		    $mc->setValues($conf);
 		}
-		
+
 		/*echo '<pre>';
 		print_r($_REQUEST);
 		echo '<pre>';
@@ -257,7 +257,7 @@ class InterfaceGetCustomerPriceWorkflow
 		else{
 			$globalWhere .= " AND o.fk_soc = (".$subSelect[get_class($objectLine)].")";
 		}
-		
+
 		$globalWhere .= " AND o.fk_statut > 0 AND o.entity IN(".getEntity('customerprice').") ";
 		if($conf->global->GETCUSTOMERPRICE_PRICE_BY_QTY) $globalWhere .= " AND od.qty <= ".$objectLine->qty;
 		$globalOrder = " ORDER BY qty DESC, date DESC
@@ -300,7 +300,7 @@ class InterfaceGetCustomerPriceWorkflow
 
 		$resql = $this->db->query($sqlFinal);
 		//echo $sqlFinal;
-		if($resql) {
+		if($resql && $this->db->num_rows($resql)) {
 			$obj = $this->db->fetch_object($resql);
 			$prix = $obj->subprice;
 			$remise_percent = $obj->remise_percent;
