@@ -32,7 +32,7 @@ if (preg_match('/set_(.*)/',$action,$reg))
 		dol_print_error($db);
 	}
 }
-	
+
 if (preg_match('/del_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
@@ -48,14 +48,14 @@ if (preg_match('/del_(.*)/',$action,$reg))
 }
 
 if($action == "add_GETCUSTOMERPRICE_FILTER_THIRD_PARTY_CATEGORY"){
-	
+
 	if(!empty($_REQUEST['categorie']) && $_REQUEST['categorie'] > 0 && GETCUSTOMERPRICE_FILTER_THIRD_PARTY_CATEGORY){
 		$db->query('INSERT INTO '.MAIN_DB_PREFIX.'categorie_customerprice (fk_categorie_societe) VALUES ('.$_REQUEST['categorie'].')');
 	}
 }
 
 if($action == "delete"){
-	
+
 	if(!empty($id)){
 		$db->query('DELETE FROM '.MAIN_DB_PREFIX.'categorie_customerprice WHERE rowid = '.$id);
 	}
@@ -64,12 +64,12 @@ if($action == "delete"){
 if($action == 'save_multicompany_shared_conf')
 {
     $multicompanypriceshare = GETPOST('multicompany-customerprice','array');
-    
+
     if(!empty($multicompanypriceshare))
     {
         foreach ($multicompanypriceshare as $entityId => $shared)
         {
-            
+
             //'MULTICOMPANY_'.strtoupper($element).'_SHARING_ENABLED
             if(is_array($shared)){
                 $shared = array_map('intval', $shared);
@@ -86,7 +86,7 @@ if($action == 'save_multicompany_shared_conf')
             }
         }
     }
-    
+
 }
 
 /*
@@ -210,7 +210,27 @@ print '<td align="center" width="300">';
 print ajax_constantonoff('GETCUSTOMERPRICE_ADAPT_PRICE_FROM_SOURCE');
 print '</td></tr>';
 
+
+// Forcer l'application des prix même pour des documents créé à partir d'autre documents
+
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$form->textwithpicto($langs->trans("ForceCustomerPriceOnDocumentWithOrigin"), $langs->trans('ForceCustomerPriceOnDocumentWithOrigin_tooltip')).'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+
+print '<td align="center" width="300">';
+print ajax_constantonoff('GETCUSTOMERPRICE_NO_CONTROL_ORIGIN');
+print '</td></tr>';
+
+
 print '</table>';
+
+
+
+/**
+ * FILTER BY CATEGORY
+ */
 
 print '<br><br>';
 
@@ -269,7 +289,7 @@ while($res = $db->fetch_object($resql)){
 	print '</td>';
 	print '<td align="center" width="30">';
 	print '<a href="'.$url.$_SERVER['PHP_SELF'].'?action=delete&id='.$res->rowid.'">'.img_delete().'</a>';
-	print '</td></tr>';	
+	print '</td></tr>';
 }
 
 print '</table>';
@@ -278,25 +298,25 @@ print '</table>';
 
 if(!empty($conf->multicompany->enabled) && !empty($conf->global->MULTICOMPANY_SHARINGS_ENABLED) )
 {
-    
+
     print '<br><br>';
-    
+
     //var_dump($mc);
     print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
     print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
     print '<input type="hidden" name="action" value="save_multicompany_shared_conf">';
-    
+
     print '<table class="noborder" width="100%">';
     print '<tr class="liste_titre">';
     print '<td>'.$langs->trans("Multicompany").'</td>'."\n";
     print '<td align="center" ></td>';
     print '</tr>';
-    
+
     $element = 'customerprice';
     $moduleSharingEnabled = 'MULTICOMPANY_'.strtoupper($element).'_SHARING_ENABLED';
-    
-    
-    
+
+
+
     print '<tr class="oddeven" >';
     print '<td align="left" >';
     print $langs->trans("ActivateSharing");
@@ -305,41 +325,41 @@ if(!empty($conf->multicompany->enabled) && !empty($conf->global->MULTICOMPANY_SH
     print ajax_constantonoff($moduleSharingEnabled, array(),0);
     print '</td>';
     print '</tr>';
-    
-    
+
+
     print '<tr class="liste_titre">';
     print '<td>'.$langs->trans("MulticompanyConfiguration").'</td>'."\n";
     print '<td align="center" >'.$langs->trans("ShareWith").'</td>';
     print '</tr>';
-    
+
     $m=new ActionsMulticompany($db);
-    
+
     $dao = new DaoMulticompany($db);
     $dao->getEntities();
-    
+
     if (is_array($dao->entities))
     {
-    
+
         foreach($dao->entities as $entitie)
         {
 
             if(intval($conf->entity) === 1 || intval($conf->entity) === intval($entitie->id))
             {
-                
+
                 print '<tr class="oddeven" >';
                 print '<td align="left" >';
                 print $entitie->name.' <em>('.$entitie->label.')</em> ';
-               // 
+               //
                 print '</td>';
                 print '<td align="center" >';
                 print _multiselect_entities('multicompany-customerprice['.$entitie->id.']', $entitie,'',$element);
                 print '</td>';
                 print '</tr>';
             }
-            
+
         }
-        
-        
+
+
         print '<tr>';
         print '<td colspan="2" style="text-align:right;" >';
         print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
@@ -347,22 +367,22 @@ if(!empty($conf->multicompany->enabled) && !empty($conf->global->MULTICOMPANY_SH
         print '</tr>';
     }
     print '</table>';
-    
+
     print '</form>';
-    
-    
+
+
     $langs->loadLangs(array( 'languages', 'multicompany@multicompany'));
-    
+
     print '<script type="text/javascript">';
     print '$(document).ready(function () {';
-    
+
     print '     $.extend($.ui.multiselect.locale, {';
     print '         addAll:\''.$langs->transnoentities("AddAll").'\',';
     print '         removeAll:\''.$langs->transnoentities("RemoveAll").'\',';
     print '         itemsCount:\''.$langs->transnoentities("ItemsCount").'\'';
     print '    });';
-    
-    
+
+
     print '    $(function(){';
     print '        $(".multiselect").multiselect({sortable: false, searchable: false});';
     print '    });';
@@ -388,12 +408,12 @@ $db->close();
 function _multiselect_entities($htmlname, $current, $option='',$sharingElement = '')
 {
     global $conf, $langs, $db;
-    
+
     $dao = new DaoMulticompany($db);
     $dao->getEntities();
-    
+
     $sharingElement = !empty($sharingElement)?$sharingElement:$htmlname;
-    
+
     $return = '<select id="'.$htmlname.'" class="multiselect" multiple="multiple" name="'.$htmlname.'[]" '.$option.'>';
     if (is_array($dao->entities))
     {
@@ -417,7 +437,7 @@ function _multiselect_entities($htmlname, $current, $option='',$sharingElement =
         }
     }
     $return.= '</select>';
-    
+
     return $return;
 }
 

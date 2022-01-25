@@ -130,6 +130,32 @@ class InterfaceGetCustomerPriceWorkflow
 
 			$langs->load('getcustomerprice@getcustomerprice');
 
+
+
+			// Il faut vérifier que la commande, un devis ou la facture n'est pas issue d'un autre document
+			// car dans ce cas là il faut appliquer les prix du document d'origine
+			if(empty($conf->global->GETCUSTOMERPRICE_NO_CONTROL_ORIGIN)){
+				$parentObject = false;
+
+				if($object->element == 'propaldet'){
+					/** @var PropaleLigne $object */
+					$parentObject = self::getObjectFromCache('Propal', $object->fk_propal);
+				}
+				elseif($object->element == 'propaldet'){
+					/** @var commandedet $object */
+					$parentObject = self::getObjectFromCache('Commande', $object->fk_commande);
+				}
+				elseif($object->element == 'propaldet'){
+					/** @var facturedet $object */
+					$parentObject = self::getObjectFromCache('Facture', $object->fk_facture);
+				}
+
+				if($parentObject && !empty($parentObject->origin) && !empty($parentObject->origin_id)){
+					// WE DO NOTHING
+					return 0;
+				}
+			}
+
 			$TInfos = $this->_getLastPriceForCustomer($object);
 
 			if(is_array($TInfos) && (!empty($TInfos['prix']) || !empty($conf->global->GETCUSTOMERPRICE_ALLOW_GET_PRICE_0))) {
@@ -356,4 +382,35 @@ class InterfaceGetCustomerPriceWorkflow
 
 		return -1;
 	}
+
+
+	/**
+	 * @param $objetClassName
+	 * @param $fk_object
+	 * @return bool|OperationOrder
+	 */
+	public static function getObjectFromCache($objetClassName, $fk_object){
+		global $db, $getCustomerPriceObjectCache;
+
+		if(!class_exists($objetClassName)){
+			// TODO : Add error log here
+			return false;
+		}
+
+		if(empty($getCustomerPriceObjectCache[$objetClassName][$fk_object])){
+			$object = new $objetClassName($db);
+			if($object->fetch($fk_object, false) <= 0)
+			{
+				return false;
+			}
+
+			$getCustomerPriceObjectCache[$objetClassName][$fk_object] = $object;
+		}
+		else{
+			$object = $getCustomerPriceObjectCache[$objetClassName][$fk_object];
+		}
+
+		return $object;
+	}
+
 }
