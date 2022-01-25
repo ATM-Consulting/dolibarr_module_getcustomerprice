@@ -93,7 +93,22 @@ class InterfaceGetCustomerPriceWorkflow
 
 	function run_trigger($action,$object,$user,$langs,$conf)
 	{
-		global $conf;
+	    global $conf, $mc;
+
+		// multicompagny tweak
+		if (is_object($mc))
+		{
+
+		    if(!empty($mc->sharingelements) && !in_array('customerprice', $mc->sharingelements)){
+		        $mc->sharingelements[] = 'customerprice';
+		    }
+
+		    if(!isset($mc->sharingobjects['customerprice'])){
+		        $mc->sharingobjects['customerprice'] = array('element'=>'getcustomerprice');
+		    }
+
+		    $mc->setValues($conf);
+		}
 
 		/*echo '<pre>';
 		print_r($_REQUEST);
@@ -114,6 +129,32 @@ class InterfaceGetCustomerPriceWorkflow
 			dol_include_once('/compta/facture/class/facture.class.php');
 
 			$langs->load('getcustomerprice@getcustomerprice');
+
+
+
+			// Il faut vérifier que la commande, un devis ou la facture n'est pas issue d'un autre document
+			// car dans ce cas là il faut appliquer les prix du document d'origine
+			if(empty($conf->global->GETCUSTOMERPRICE_NO_CONTROL_ORIGIN)){
+				$parentObject = false;
+
+				if($object->element == 'propaldet'){
+					/** @var PropaleLigne $object */
+					$parentObject = self::getObjectFromCache('Propal', $object->fk_propal);
+				}
+				elseif($object->element == 'propaldet'){
+					/** @var commandedet $object */
+					$parentObject = self::getObjectFromCache('Commande', $object->fk_commande);
+				}
+				elseif($object->element == 'propaldet'){
+					/** @var facturedet $object */
+					$parentObject = self::getObjectFromCache('Facture', $object->fk_facture);
+				}
+
+				if($parentObject && !empty($parentObject->origin) && !empty($parentObject->origin_id)){
+					// WE DO NOTHING
+					return 0;
+				}
+			}
 
 			$TInfos = $this->_getLastPriceForCustomer($object);
 
@@ -174,7 +215,7 @@ class InterfaceGetCustomerPriceWorkflow
 					else $object->update();
 				}
 
-				setEventMessage($langs->trans('CustomerPriceFrom'.$TInfos['sourcetype'], $TInfos['source']->getNomUrl()), 'warnings');
+				setEventMessage($langs->transnoentities('CustomerPriceFrom'.$TInfos['sourcetype'], $TInfos['source']->getNomUrl()), 'warnings');
 
 				dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->rowid);
 				return 1;
@@ -243,7 +284,7 @@ class InterfaceGetCustomerPriceWorkflow
 			$globalWhere .= " AND o.fk_soc = (".$subSelect[get_class($objectLine)].")";
 		}
 
-		$globalWhere .= " AND o.fk_statut > 0";
+		$globalWhere .= " AND o.fk_statut > 0 AND o.entity IN(".getEntity('customerprice').") ";
 		if($conf->global->GETCUSTOMERPRICE_PRICE_BY_QTY) $globalWhere .= " AND od.qty <= ".$objectLine->qty;
 		$globalOrder = " ORDER BY qty DESC, date DESC
 						 LIMIT 1";
@@ -285,10 +326,11 @@ class InterfaceGetCustomerPriceWorkflow
 
 		$resql = $this->db->query($sqlFinal);
 		//echo $sqlFinal;
-		if($resql) {
+		if($resql && $this->db->num_rows($resql)) {
 			$obj = $this->db->fetch_object($resql);
 			$prix = $obj->subprice;
 			$remise_percent = $obj->remise_percent;
+            $prix_remise = price2num($prix)*(1-price2num($remise_percent)/100);
 			$fk_soc = $obj->fk_soc;
 			$class = $obj->type;
 			$rowid = $obj->rowid;
@@ -311,7 +353,23 @@ class InterfaceGetCustomerPriceWorkflow
 				if (!empty($conf->global->PRODUIT_MULTIPRICES) && !empty($customer->price_level))
 					$price_min = $product->multiprices_min[$customer->price_level];
 
-				if (!empty($price_min) && (price2num($prix)*(1-price2num($objectLine->remise_percent)/100) < price2num($price_min))) return -2;
+				if(empty($conf->global->GETCUSTOMERPRICE_ADAPT_PRICE_FROM_SOURCE)) {
+                    if (! empty($price_min) && $prix_remise < price2num($price_min)) return -2;
+                }
+				else {
+				    // On est dans le cas où on a pas les droits pour aller en dessous du prix minimum
+				    if(empty($conf->global->MAIN_USE_ADVANCED_PERMS) || ! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && empty($user->rights->produit->ignore_price_min_advance)) {
+				        if(! empty($price_min) && $prix_remise < price2num($price_min)) {
+                            setEventMessage($langs->trans('PriceFoundButBelowPriceMin', price(price2num($prix_remise, 'MU'), 0, $langs, 0, 0, -1, $conf->currency), price(price2num($price_min, 'MU'), 0, $langs, 0, 0, -1, $conf->currency)), 'warnings');
+                            return array(
+                                'prix' => price2num($prix),
+                                'remise_percent' => (1 - price2num($price_min / $prix)) * 100,
+                                'sourcetype' => $class,
+                                'source' => &$o
+                            );
+                        }
+                    }
+                }
 
 				return array(
 					'prix' => price2num($prix)
@@ -324,4 +382,35 @@ class InterfaceGetCustomerPriceWorkflow
 
 		return -1;
 	}
+
+
+	/**
+	 * @param $objetClassName
+	 * @param $fk_object
+	 * @return bool|OperationOrder
+	 */
+	public static function getObjectFromCache($objetClassName, $fk_object){
+		global $db, $getCustomerPriceObjectCache;
+
+		if(!class_exists($objetClassName)){
+			// TODO : Add error log here
+			return false;
+		}
+
+		if(empty($getCustomerPriceObjectCache[$objetClassName][$fk_object])){
+			$object = new $objetClassName($db);
+			if($object->fetch($fk_object, false) <= 0)
+			{
+				return false;
+			}
+
+			$getCustomerPriceObjectCache[$objetClassName][$fk_object] = $object;
+		}
+		else{
+			$object = $getCustomerPriceObjectCache[$objetClassName][$fk_object];
+		}
+
+		return $object;
+	}
+
 }

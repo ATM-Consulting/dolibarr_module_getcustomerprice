@@ -19,7 +19,16 @@ CategoryFilter=Filtre par catégorie tiers
 FilterByThirdPartyCategory=Filtrer par catégorie tiers
 AddThirdPartyCategoryInFilter=Ajouter un filtre par catégorie
 CategoryToFilter=Catégories à filtrer
+Multicompany=Options du module multi sociétés
+ActivateSharing=Activer le partage des prix client entre entités (pensez à configurer le partage ci-dessous)
+ShareWith=Partager avec
+MulticompanyConfiguration=Configuration des partages entre entités
+UsePriceMinAsDiscountPrice=Utiliser le prix minimum d'un produit comme prix de vente HT
+UsePriceMinAsDiscountPrice_tooltip=Uniquement si le prix trouvé est inférieur au prix minimum du produit en question
+PriceFoundButBelowPriceMin=Le prix client récupéré est de %s mais celui est inférieur au prix minimum du produit (%s)
 AlloowGetPrice0=Autoriser la récupération des prix à 0
+ForceCustomerPriceOnDocumentWithOrigin = Forcer la recherche et l'application des prix même pour des documents créés a partir d'autres documents.
+ForceCustomerPriceOnDocumentWithOrigin_tooltip = Exemple devis -> commande -> facture dans ce cas là, la commande et la facture peuvent avoir des prix différents du devis
 
 # MSG
 CustomerPriceFromPropal=Prix client récupéré de la proposition %s
