@@ -158,8 +158,7 @@ class InterfaceGetCustomerPriceWorkflow
 
 			$TInfos = $this->_getLastPriceForCustomer($object);
 
-
-			if(!empty($TInfos) && !empty($TInfos['prix'])) {
+			if(is_array($TInfos) && (!empty($TInfos['prix']) || !empty($conf->global->GETCUSTOMERPRICE_ALLOW_GET_PRICE_0))) {
 				// Fonctionnement spécifique si on est sur une ligne d'avoir
 				if($object->element == 'facturedet') {
 					$f = new Facture($object->db);
@@ -211,9 +210,12 @@ class InterfaceGetCustomerPriceWorkflow
 				$object->remise = $remise;
 
 				if($object->element == 'facturedet') $object->update($user);
-				else $object->update();
+				else {
+					if((float)DOL_VERSION > 4.0) $object->update($user); // Bug en 7.0 si on spécifie pas $user... (test sur la version obligatoire car avant 5.0 premier param = $notrigger)
+					else $object->update();
+				}
 
-				setEventMessage($langs->trans('CustomerPriceFrom'.$TInfos['sourcetype'], $TInfos['source']->getNomUrl()), 'warnings');
+				setEventMessage($langs->transnoentities('CustomerPriceFrom'.$TInfos['sourcetype'], $TInfos['source']->getNomUrl()), 'warnings');
 
 				dol_syslog("Trigger '".$this->name."' for action '$action' launched by ".__FILE__.". id=".$object->rowid);
 				return 1;
@@ -324,7 +326,7 @@ class InterfaceGetCustomerPriceWorkflow
 
 		$resql = $this->db->query($sqlFinal);
 		//echo $sqlFinal;
-		if($resql) {
+		if($resql && $this->db->num_rows($resql)) {
 			$obj = $this->db->fetch_object($resql);
 			$prix = $obj->subprice;
 			$remise_percent = $obj->remise_percent;

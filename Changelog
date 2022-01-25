@@ -1,3 +1,9 @@
+
+#Version 1.2
+
+- FIX : message d'erreur getNomUrl() transnoentities
+
+
 +--------------------------+
 | 2013.09.02 - Version 1.1 |
 +--------------------------+
