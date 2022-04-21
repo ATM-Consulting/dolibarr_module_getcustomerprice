@@ -141,11 +141,11 @@ class InterfaceGetCustomerPriceWorkflow
 					/** @var PropaleLigne $object */
 					$parentObject = self::getObjectFromCache('Propal', $object->fk_propal);
 				}
-				elseif($object->element == 'propaldet'){
+				elseif($object->element == 'commandedet'){
 					/** @var commandedet $object */
 					$parentObject = self::getObjectFromCache('Commande', $object->fk_commande);
 				}
-				elseif($object->element == 'propaldet'){
+				elseif($object->element == 'facturedet'){
 					/** @var facturedet $object */
 					$parentObject = self::getObjectFromCache('Facture', $object->fk_facture);
 				}
