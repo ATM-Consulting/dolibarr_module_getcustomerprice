@@ -3,7 +3,7 @@
 ## Unreleased
 
 ## 1.3
-
+- FIX : V16 COMPAT - *14/06/2022* - 1.3.7  
 - FIX : incorrect test for line element type  - 1.3.6 - *21/04/2022*
 - FIX : Le bug constaté : Une facture créée à partir d'une commande peut ne pas avoir les prix de la commande... - 1.3.5 - *25/01/2022*
   il faut dans le cas de document avec une origine désactiver le comportement par défaut du module car pose des soucis de cohérences.
