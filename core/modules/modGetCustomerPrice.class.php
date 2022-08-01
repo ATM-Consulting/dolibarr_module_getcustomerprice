@@ -52,13 +52,13 @@ class modGetCustomerPrice extends DolibarrModules
 
 		// Family can be 'crm','financial','hr','projects','products','ecm','technic','other'
 		// It is used to group modules in module setup page
-		$this->family = "technic";
+		$this->family = "ATM Consulting - CRM";
 		// Module label (no space allowed), used if translation string 'ModuleXXXName' not found (where XXX is value of numeric property 'numero' of module)
 		$this->name = preg_replace('/^mod/i','',get_class($this));
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Utilise le dernier prix pratiqué pour le client au lieu du prix catalogue";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.3.5';
+		$this->version = '1.3.7';
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 		// Where to store the module in setup page (0=common,1=interface,2=others,3=very specific)
@@ -150,7 +150,7 @@ class modGetCustomerPrice extends DolibarrModules
         if (! isset($conf->mymodule->enabled)) $conf->mymodule->enabled=0;	// This is to avoid warnings
         $this->dictionnaries=array(
             'langs'=>'mylangfile@mymodule',
-            'tabname'=>array(MAIN_DB_PREFIX."table1",MAIN_DB_PREFIX."table2",MAIN_DB_PREFIX."table3"),		// List of tables we want to see into dictonnary editor
+            'tabname'=>array("table1","table2","table3"),		// List of tables we want to see into dictonnary editor
             'tablib'=>array("Table1","Table2","Table3"),													// Label of tables
             'tabsql'=>array('SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table1 as f','SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table2 as f','SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table3 as f'),	// Request to select fields
             'tabsqlsort'=>array("label ASC","label ASC","label ASC"),																					// Sort order

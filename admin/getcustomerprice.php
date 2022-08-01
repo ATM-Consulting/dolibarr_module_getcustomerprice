@@ -15,7 +15,7 @@ if (! $user->admin) accessforbidden();
 
 $action=GETPOST('action');
 $id=GETPOST('id');
-
+$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
 /*
  * Action
  */
@@ -105,7 +105,7 @@ if(!empty($conf->multicompany->enabled) && !empty($conf->global->MULTICOMPANY_SH
 
 llxHeader('',$langs->trans("GetCustomerPriceSetup"));
 
-$linkback='<a href="'.DOL_URL_ROOT.'/admin/modules.php">'.$langs->trans("BackToModuleList").'</a>';
+$linkback='<a href="'.DOL_URL_ROOT.'/admin/modules.php?token="'.$newToken.'>'.$langs->trans("BackToModuleList").'</a>';
 print_fiche_titre($langs->trans("GetCustomerPriceSetup"),$linkback,'getcustomerprice@getcustomerprice');
 
 print '<br>';
@@ -132,7 +132,7 @@ $dateFrom = array(
 );
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_GETCUSTOMERPRICE_DATEFROM">';
 print $form->selectarray('GETCUSTOMERPRICE_DATEFROM', $dateFrom, $conf->global->GETCUSTOMERPRICE_DATEFROM);
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
@@ -153,7 +153,7 @@ $whattoget = array(
 
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="set_GETCUSTOMERPRICE_WHATTOGET">';
 print $form->selectarray('GETCUSTOMERPRICE_WHATTOGET', $whattoget, $conf->global->GETCUSTOMERPRICE_WHATTOGET);
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
@@ -260,7 +260,7 @@ dol_include_once('/categories/class/categorie.class.php');
 
 print '<td align="center" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="token" value="'.$newToken.'">';
 print '<input type="hidden" name="action" value="add_GETCUSTOMERPRICE_FILTER_THIRD_PARTY_CATEGORY">';
 print $form->select_all_categories(2,'','categorie');
 print '<input type="submit" class="button" value="'.$langs->trans("Add").'">';
@@ -288,7 +288,7 @@ while($res = $db->fetch_object($resql)){
 	print $res->description;
 	print '</td>';
 	print '<td align="center" width="30">';
-	print '<a href="'.$url.$_SERVER['PHP_SELF'].'?action=delete&id='.$res->rowid.'">'.img_delete().'</a>';
+	print '<a href="'.$url.$_SERVER['PHP_SELF'].'?action=delete&id='.$res->rowid.'&token='.$newToken.'">'.img_delete().'</a>';
 	print '</td></tr>';
 }
 
@@ -303,7 +303,7 @@ if(!empty($conf->multicompany->enabled) && !empty($conf->global->MULTICOMPANY_SH
 
     //var_dump($mc);
     print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-    print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+    print '<input type="hidden" name="token" value="'.$newToken.'">';
     print '<input type="hidden" name="action" value="save_multicompany_shared_conf">';
 
     print '<table class="noborder" width="100%">';
