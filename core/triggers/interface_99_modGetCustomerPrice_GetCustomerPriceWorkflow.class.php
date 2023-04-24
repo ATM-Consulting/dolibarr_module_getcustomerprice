@@ -137,20 +137,20 @@ class InterfaceGetCustomerPriceWorkflow
 			if(empty($conf->global->GETCUSTOMERPRICE_NO_CONTROL_ORIGIN)){
 				$parentObject = false;
 
-				if($object->element == 'propaldet'){
-					/** @var PropaleLigne $object */
-					$parentObject = self::getObjectFromCache('Propal', $object->fk_propal);
-				}
-				elseif($object->element == 'commandedet'){
+				if($object->element == 'commandedet'){
 					/** @var commandedet $object */
 					$parentObject = self::getObjectFromCache('Commande', $object->fk_commande);
+					/** @var commande $parentObject */
+					$parentObject->fetchObjectLinked();
 				}
 				elseif($object->element == 'facturedet'){
 					/** @var facturedet $object */
 					$parentObject = self::getObjectFromCache('Facture', $object->fk_facture);
+					/** @var facture $parentObject */
+					$parentObject->fetchObjectLinked();
 				}
 
-				if($parentObject && !empty($parentObject->origin) && !empty($parentObject->origin_id)){
+				if($parentObject && (isset($parentObject->linked_objects['commande']) || isset($parentObject->linked_objects['propal']))){
 					// WE DO NOTHING
 					return 0;
 				}
