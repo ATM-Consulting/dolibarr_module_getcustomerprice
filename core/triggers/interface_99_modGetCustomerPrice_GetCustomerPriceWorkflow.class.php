@@ -150,7 +150,7 @@ class InterfaceGetCustomerPriceWorkflow
 					$parentObject->fetchObjectLinked();
 				}
 
-				if($parentObject && (isset($parentObject->linked_objects['commande']) || isset($parentObject->linked_objects['propal']))){
+				if($parentObject && (isset($parentObject->linkedObjects['commande']) || isset($parentObject->linkedObjects['propal']))){
 					// WE DO NOTHING
 					return 0;
 				}
